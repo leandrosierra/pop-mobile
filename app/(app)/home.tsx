@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -17,6 +17,7 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const token = useAuthStore((state) => state.requireToken());
+  const answeredQuestionIds = useRef(new Set<number>());
   const [queue, setQueue] = useState<PopQuestion[]>([]);
 
   const query = useQuery({
@@ -25,7 +26,7 @@ export default function HomeScreen() {
   });
 
   useEffect(() => {
-    if (query.data) setQueue(query.data);
+    if (query.data) setQueue(query.data.filter((question) => !answeredQuestionIds.current.has(question.id)));
   }, [query.data]);
 
   const activeQuestion = queue[queue.length - 1];
@@ -35,7 +36,11 @@ export default function HomeScreen() {
     mutationFn: ({ id, responseType }: { id: number; responseType: "YES" | "NO" | "NEUTRAL" }) =>
       popApi.answerQuestion(token, id, responseType, "POST"),
     onSuccess: (result, variables) => {
+      answeredQuestionIds.current.add(variables.id);
       setQueue((current) => current.filter((question) => question.id !== variables.id));
+      queryClient.setQueryData<PopQuestion[]>(["question-feed"], (current) =>
+        current?.filter((question) => question.id !== variables.id)
+      );
       queryClient.invalidateQueries({ queryKey: ["question-feed"] });
       if (variables.responseType !== "NEUTRAL" && !result.queued) {
         router.push({
@@ -71,6 +76,7 @@ export default function HomeScreen() {
               <Text style={styles.error}>{answerMutation.error instanceof Error ? answerMutation.error.message : t("cannotProcessRequest")}</Text>
             ) : null}
             <QuestionCard
+              key={activeQuestion.id}
               question={activeQuestion}
               color={activeColor}
               onAnswer={(responseType) => answerMutation.mutate({ id: activeQuestion.id, responseType })}
