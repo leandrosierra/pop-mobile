@@ -8,6 +8,7 @@ import { AppScreen } from "@/components/AppScreen";
 import { ErrorState, LoadingState } from "@/components/Feedback";
 import { Header } from "@/components/Header";
 import { SegmentedControl } from "@/components/SegmentedControl";
+import { TimestampBadge } from "@/components/TimestampBadge";
 import { popApi } from "@/api/pop";
 import { PopAnsweredQuestion, PopQuestion } from "@/domain/schemas";
 import { useAuthStore } from "@/store/authStore";
@@ -25,7 +26,7 @@ const summaryItemKey = (tab: TabName) => (item: SummaryItem, index: number) => {
 };
 
 export default function SummaryScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const token = useAuthStore((state) => state.requireToken());
   const user = useAuthStore((state) => state.user);
   const [tab, setTab] = useState<TabName>("authored");
@@ -79,6 +80,12 @@ export default function SummaryScreen() {
                   })
                 }
               >
+                <View style={styles.itemHeader}>
+                  <TimestampBadge
+                    value={"response" in item ? item.answeredAt || item.createdAt : item.createdAt}
+                    locale={i18n.language}
+                  />
+                </View>
                 <Text style={styles.questionTitle}>{item.questionTitle}</Text>
                 {"response" in item ? <Text style={styles.response}>{t("answerPrefix")}: {String(item.response)}</Text> : null}
               </Pressable>
@@ -109,6 +116,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     padding: spacing.md,
     ...shadows.sm
+  },
+  itemHeader: {
+    flexDirection: "row",
+    marginBottom: spacing.sm
   },
   questionTitle: {
     fontFamily: fontFamilies.sans,

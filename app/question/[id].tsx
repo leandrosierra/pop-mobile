@@ -47,7 +47,9 @@ export default function QuestionScreen() {
     questionTitle: detail.questionTitle,
     questionDesc: detail.questionDesc,
     creator: "",
-    status: ""
+    status: "",
+    createdAt: detail.createdAt,
+    updatedAt: detail.updatedAt
   };
 
   if (mode === "vote") {

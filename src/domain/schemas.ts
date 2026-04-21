@@ -64,14 +64,21 @@ export const popQuestionSchema = z
     creator: stringValue,
     questionDesc: stringValue.optional(),
     questionDescription: stringValue.optional(),
-    status: stringValue.optional()
+    status: stringValue.optional(),
+    createdAt: stringValue.optional(),
+    dateCreation: stringValue.optional(),
+    creationDate: stringValue.optional(),
+    updatedAt: stringValue.optional(),
+    dateModification: stringValue.optional()
   })
   .transform((value) => ({
     id: value.id,
     questionTitle: value.questionTitle,
     creator: value.creator,
     questionDesc: value.questionDesc || value.questionDescription || "",
-    status: value.status || ""
+    status: value.status || "",
+    createdAt: value.createdAt || value.dateCreation || value.creationDate || "",
+    updatedAt: value.updatedAt || value.dateModification || ""
   }));
 
 export const popAnsweredQuestionSchema = z
@@ -80,14 +87,23 @@ export const popAnsweredQuestionSchema = z
     questionTitle: stringValue,
     questionDescription: stringValue,
     creator: stringValue,
-    response: stringValue
+    response: stringValue,
+    createdAt: stringValue.optional(),
+    dateCreation: stringValue.optional(),
+    answeredAt: stringValue.optional(),
+    answerDate: stringValue.optional(),
+    updatedAt: stringValue.optional(),
+    dateModification: stringValue.optional()
   })
   .transform((value) => ({
     id: value.id,
     questionTitle: value.questionTitle,
     questionDesc: value.questionDescription,
     creator: value.creator,
-    response: value.response
+    response: value.response,
+    createdAt: value.createdAt || value.dateCreation || "",
+    answeredAt: value.answeredAt || value.answerDate || value.dateModification || value.createdAt || value.dateCreation || "",
+    updatedAt: value.updatedAt || value.dateModification || ""
   }));
 
 export const questionStatsSchema = z
@@ -107,6 +123,11 @@ export const popQuestionDetailSchema = z
     id: numberValue,
     questionTitle: stringValue,
     questionDesc: stringValue,
+    createdAt: stringValue.optional(),
+    dateCreation: stringValue.optional(),
+    creationDate: stringValue.optional(),
+    updatedAt: stringValue.optional(),
+    dateModification: stringValue.optional(),
     geoTags: z.array(popLocationSchema).optional().default([]),
     interestTags: z.array(popInterestSchema).optional().default([]),
     stats: questionStatsSchema.optional().default({ yes: 0, no: 0, neutral: 0 })
@@ -115,6 +136,8 @@ export const popQuestionDetailSchema = z
     id: value.id,
     questionTitle: value.questionTitle,
     questionDesc: value.questionDesc,
+    createdAt: value.createdAt || value.dateCreation || value.creationDate || "",
+    updatedAt: value.updatedAt || value.dateModification || "",
     geoTags: value.geoTags,
     interestTags: value.interestTags,
     stats: value.stats

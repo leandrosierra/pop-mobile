@@ -1,4 +1,5 @@
 import { PopAnsweredQuestion, PopQuestion, PopQuestionDetail, PopUser, QuestionStats } from "@/domain/schemas";
+import { normalizeTimestamp } from "@/utils/time";
 
 type LegacyRole = {
   code?: string;
@@ -54,6 +55,9 @@ export type LegacyQuestion = {
   libelle?: string;
   description?: string;
   forwards?: number;
+  dateCreation?: string | number;
+  dateModification?: string | number;
+  dateExpiration?: string | number;
   user?: LegacyUser;
   statut?: {
     idStatut?: number;
@@ -65,6 +69,8 @@ export type LegacyQuestion = {
 
 export type LegacyStat = {
   idStat: number;
+  dateCreation?: string | number;
+  dateModification?: string | number;
   question?: LegacyQuestion;
   reponse?: {
     id?: number;
@@ -148,7 +154,9 @@ export function mapLegacyQuestion(question: LegacyQuestion): PopQuestion {
     questionTitle: question.libelle || question.code || "",
     questionDesc: question.description || "",
     creator: question.user?.login || "",
-    status: statusMap[question.statut?.code || ""] || question.statut?.code || ""
+    status: statusMap[question.statut?.code || ""] || question.statut?.code || "",
+    createdAt: normalizeTimestamp(question.dateCreation),
+    updatedAt: normalizeTimestamp(question.dateModification)
   };
 }
 
@@ -169,7 +177,9 @@ export function mapLegacyAnsweredQuestion(stat: LegacyStat): LegacyAnsweredQuest
   return {
     ...mapLegacyQuestion(stat.question || { id: 0 }),
     summaryKey: `answered-${stat.idStat}`,
-    response: stat.reponse?.libelle || stat.reponse?.code || ""
+    response: stat.reponse?.libelle || stat.reponse?.code || "",
+    answeredAt: normalizeTimestamp(stat.dateCreation || stat.dateModification),
+    updatedAt: normalizeTimestamp(stat.dateModification)
   };
 }
 

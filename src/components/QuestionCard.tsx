@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Check, Info, Minus, X } from "lucide-react-native";
+import { TimestampBadge } from "@/components/TimestampBadge";
 import { PopQuestion } from "@/domain/schemas";
 import { colors, fontFamilies, fontWeights, radii, shadows, spacing, typography } from "@/theme";
 
@@ -23,7 +24,7 @@ type QuestionCardProps = {
 };
 
 export function QuestionCard({ question, color, onAnswer, onMoreInfo }: QuestionCardProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const accent = color || colors.orange;
   const position = useRef(new Animated.ValueXY()).current;
   const [dragging, setDragging] = useState(false);
@@ -94,6 +95,7 @@ export function QuestionCard({ question, color, onAnswer, onMoreInfo }: Question
         ]}
       >
         <View style={styles.creatorRow}>
+          <TimestampBadge value={question.createdAt} locale={i18n.language} inverted />
           <Text style={styles.creator} numberOfLines={1}>{question.creator}</Text>
         </View>
         <Text style={styles.title} adjustsFontSizeToFit minimumFontScale={0.78}>{question.questionTitle}</Text>
@@ -140,9 +142,13 @@ const styles = StyleSheet.create({
   },
   creatorRow: {
     alignSelf: "stretch",
-    alignItems: "flex-end"
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing.sm
   },
   creator: {
+    flexShrink: 1,
     fontFamily: fontFamilies.sans,
     color: "#fff",
     fontSize: typography.tiny,

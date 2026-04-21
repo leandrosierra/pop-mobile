@@ -8,6 +8,7 @@ import { AppScreen } from "@/components/AppScreen";
 import { EmptyState, ErrorState, LoadingState } from "@/components/Feedback";
 import { Header } from "@/components/Header";
 import { SegmentedControl } from "@/components/SegmentedControl";
+import { TimestampBadge } from "@/components/TimestampBadge";
 import { popApi } from "@/api/pop";
 import { PopQuestion } from "@/domain/schemas";
 import { useAuthStore } from "@/store/authStore";
@@ -17,7 +18,7 @@ const statusTabs = ["DRAFT", "ACTIVE", "IDLE"] as const;
 type StatusTab = (typeof statusTabs)[number];
 
 export default function AdminQuestionsScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const token = useAuthStore((state) => state.requireToken());
   const [status, setStatus] = useState<StatusTab>("DRAFT");
 
@@ -61,6 +62,9 @@ export default function AdminQuestionsScreen() {
                   })
                 }
               >
+                <View style={styles.itemHeader}>
+                  <TimestampBadge value={item.createdAt} locale={i18n.language} />
+                </View>
                 <Text style={styles.questionTitle}>{item.questionTitle}</Text>
                 <Text style={styles.creator}>{item.creator}</Text>
               </Pressable>
@@ -89,6 +93,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     padding: spacing.md,
     ...shadows.sm
+  },
+  itemHeader: {
+    flexDirection: "row",
+    marginBottom: spacing.sm
   },
   questionTitle: {
     fontFamily: fontFamilies.sans,
