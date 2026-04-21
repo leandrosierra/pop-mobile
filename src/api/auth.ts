@@ -3,6 +3,8 @@ import {
   popUserSchema,
   refreshTokenResponseSchema
 } from "@/domain/schemas";
+import { languageResponseSchema } from "@/domain/languageSchemas";
+import { SupportedLanguageCode, toApiLanguageCode } from "@/localization/languages";
 import { apiRequest, isLegacyApi, legacyApiRequest } from "./client";
 import { LegacyUser, mapLegacyUser } from "./legacy";
 
@@ -71,7 +73,7 @@ export const authApi = {
 
     return apiRequest<void>("/pop/user/email-signup", {
       method: "POST",
-      body: JSON.stringify({ emailId: email, nickname: name })
+      body: JSON.stringify({ emailId: email, nickname: name, languageCode: "FR" })
     });
   },
   forgotPassword(email: string) {
@@ -80,6 +82,24 @@ export const authApi = {
     return apiRequest<void>("/pop/user/email-forgot-password", {
       method: "POST",
       body: JSON.stringify({ mailId: email })
+    });
+  },
+  updateLanguage(token: string, language: SupportedLanguageCode) {
+    const code = toApiLanguageCode(language);
+    if (isLegacyApi) {
+      return legacyApiRequest("/user/current/language", {
+        method: "PUT",
+        token,
+        body: JSON.stringify({ code }),
+        schema: languageResponseSchema
+      });
+    }
+
+    return apiRequest("/pop/user/language", {
+      method: "PUT",
+      token,
+      body: JSON.stringify({ code }),
+      schema: languageResponseSchema
     });
   },
   deleteAccount(token: string) {

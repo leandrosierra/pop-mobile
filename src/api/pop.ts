@@ -11,6 +11,7 @@ import {
 } from "@/domain/schemas";
 import { OfflineOperation, OfflineOperationInput, useOfflineStore } from "@/store/offlineStore";
 import { apiRequest, isApiNetworkError, isLegacyApi, legacyApiRequest } from "./client";
+import { authApi } from "./auth";
 import {
   legacyAnswerId,
   legacyInterests,
@@ -212,6 +213,8 @@ export function replayOfflineOperation(operation: OfflineOperation) {
       return answerQuestionOnline(operation.token, operation.payload.id, operation.payload.responseType, operation.payload.method);
     case "SET_QUESTION_STATUS":
       return setQuestionStatusOnline(operation.token, operation.payload.id, operation.payload.status);
+    case "SET_LANGUAGE":
+      return authApi.updateLanguage(operation.token, operation.payload.language).then(() => undefined);
   }
 }
 

@@ -126,6 +126,9 @@ export const popUserSchema = z
     name: stringValue,
     email: stringValue.optional(),
     emailId: stringValue.optional(),
+    language: stringValue.optional(),
+    preferredLanguage: stringValue.optional(),
+    languageCode: stringValue.optional(),
     role: stringValue.optional(),
     userChoiceGeoDtoList: z.array(popLocationSchema).optional().default([]),
     userChoiceGeo: z.array(popLocationSchema).optional().default([]),
@@ -135,6 +138,7 @@ export const popUserSchema = z
     uid: value.uid,
     name: value.name,
     email: value.email || value.emailId || "",
+    language: value.language || value.preferredLanguage || value.languageCode || "fr",
     role: value.role || "USER",
     userChoiceGeo: value.userChoiceGeoDtoList.length ? value.userChoiceGeoDtoList : value.userChoiceGeo,
     userInterest: value.interest

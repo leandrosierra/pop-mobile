@@ -1,9 +1,8 @@
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-import { PopUser } from "@/domain/schemas";
-import { normalizeLanguageCode } from "@/localization/languages";
+import { normalizeLanguageCode, SupportedLanguageCode } from "@/localization/languages";
 
-const userKey = "pop.currentUser";
+const languageKey = "pop.language";
 
 const webStorage = {
   getItem: async (key: string) => (typeof localStorage === "undefined" ? null : localStorage.getItem(key)),
@@ -27,30 +26,15 @@ const deleteItem = (key: string) => (
   Platform.OS === "web" ? webStorage.deleteItem(key) : SecureStore.deleteItemAsync(key)
 );
 
-export const userStorage = {
+export const languageStorage = {
   async read() {
-    const raw = await getItem(userKey);
-    if (!raw) return null;
-    try {
-      const user = JSON.parse(raw) as PopUser;
-      if (!user?.uid || !user.name) return null;
-      return {
-        uid: user.uid,
-        name: user.name,
-        email: user.email || "",
-        language: normalizeLanguageCode(user.language),
-        role: user.role || "USER",
-        userChoiceGeo: Array.isArray(user.userChoiceGeo) ? user.userChoiceGeo : [],
-        userInterest: Array.isArray(user.userInterest) ? user.userInterest : []
-      };
-    } catch {
-      return null;
-    }
+    const value = await getItem(languageKey);
+    return value ? normalizeLanguageCode(value) : null;
   },
-  write(user: PopUser) {
-    return setItem(userKey, JSON.stringify({ ...user, language: normalizeLanguageCode(user.language) }));
+  write(language: SupportedLanguageCode) {
+    return setItem(languageKey, language);
   },
   clear() {
-    return deleteItem(userKey);
+    return deleteItem(languageKey);
   }
 };

@@ -80,7 +80,7 @@ export default function SummaryScreen() {
                 }
               >
                 <Text style={styles.questionTitle}>{item.questionTitle}</Text>
-                {"response" in item ? <Text style={styles.response}>A: {String(item.response)}</Text> : null}
+                {"response" in item ? <Text style={styles.response}>{t("answerPrefix")}: {String(item.response)}</Text> : null}
               </Pressable>
             )}
           />

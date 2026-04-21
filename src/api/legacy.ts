@@ -27,6 +27,13 @@ type LegacyGeoChoice = {
   };
 };
 
+type LegacyLanguage = {
+  langue?: {
+    code?: string;
+    libelle?: string;
+  };
+};
+
 export type LegacyUser = {
   id: number;
   login: string;
@@ -36,6 +43,9 @@ export type LegacyUser = {
   role?: LegacyRole;
   interets?: LegacyInterest[];
   choixGeo?: LegacyGeoChoice[];
+  parametres?: {
+    langues?: LegacyLanguage[];
+  };
 };
 
 export type LegacyQuestion = {
@@ -117,6 +127,7 @@ export function mapLegacyUser(user: LegacyUser): PopUser {
     uid: String(user.id),
     name: [user.prenom, user.nom].filter(Boolean).join(" ") || user.login,
     email: user.email || "",
+    language: user.parametres?.langues?.[0]?.langue?.code?.toLowerCase() || "fr",
     role: user.role?.code || "USER",
     userChoiceGeo: (user.choixGeo ?? []).map((choice) => ({
       id: choice.ville?.code || choice.dept?.code || choice.pays?.code || "",

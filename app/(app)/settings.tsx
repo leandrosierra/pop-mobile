@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { KeyRound, LogOut, Trash2 } from "lucide-react-native";
@@ -13,6 +13,7 @@ import { ErrorState, LoadingState } from "@/components/Feedback";
 import { FormField } from "@/components/FormField";
 import { Header } from "@/components/Header";
 import { popApi } from "@/api/pop";
+import { supportedLanguages, SupportedLanguageCode } from "@/localization/languages";
 import { useAuthStore } from "@/store/authStore";
 import { useOfflineStore } from "@/store/offlineStore";
 import { colors, fontFamilies, fontWeights, spacing, typography } from "@/theme";
@@ -27,6 +28,7 @@ export default function SettingsScreen() {
   const cachedUser = useAuthStore((state) => state.user);
   const removeUserGeoChoice = useAuthStore((state) => state.removeUserGeoChoice);
   const removeUserInterestChoice = useAuthStore((state) => state.removeUserInterestChoice);
+  const updateLanguage = useAuthStore((state) => state.updateLanguage);
   const online = useOfflineStore((state) => state.online);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -78,6 +80,15 @@ export default function SettingsScreen() {
     }
   });
 
+  const languageMutation = useMutation({
+    mutationFn: (language: SupportedLanguageCode) => updateLanguage(language),
+    onSuccess: () => {
+      queryClient.setQueryData(["current-user"], useAuthStore.getState().user);
+      Alert.alert(t("requestSuccess"), online ? t("languageSaved") : t("queuedLanguageChange"));
+    },
+    onError: (err) => Alert.alert(t("languageUpdateError"), err instanceof Error ? err.message : t("cannotProcessRequest"))
+  });
+
   if (userQuery.isLoading && !cachedUser) return <LoadingState label={t("loadingUserProfile")} />;
   if ((userQuery.isError || !userQuery.data) && !cachedUser) return <ErrorState label={t("errorLoadingUserInfo")} />;
 
@@ -92,6 +103,33 @@ export default function SettingsScreen() {
         <Text style={styles.name}>{user.name}</Text>
         <Text style={styles.email}>{user.email}</Text>
         <Text style={styles.role}>{user.role}</Text>
+      </AppCard>
+
+      <AppCard style={styles.languageBox}>
+        <Text style={styles.section}>{t("interfaceLanguage")}</Text>
+        <Text style={styles.helper}>{t("profileLanguageHelp")}</Text>
+        <View style={styles.languageGrid}>
+          {supportedLanguages.map((language) => {
+            const active = language.code === user.language;
+            return (
+              <Pressable
+                key={language.code}
+                disabled={languageMutation.isPending}
+                onPress={() => languageMutation.mutate(language.code)}
+                style={({ pressed }) => [
+                  styles.languageOption,
+                  active && styles.languageOptionActive,
+                  pressed && styles.languageOptionPressed
+                ]}
+              >
+                <Text style={[styles.languageName, active && styles.languageNameActive]}>{language.nativeName}</Text>
+                <Text style={[styles.languageRegion, active && styles.languageRegionActive]} numberOfLines={1}>
+                  {language.regionName}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </AppCard>
 
       <Text style={styles.section}>{t("geographicalLocations")}</Text>
@@ -161,6 +199,51 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     marginTop: spacing.md,
     marginBottom: spacing.md
+  },
+  languageBox: {
+    gap: spacing.sm,
+    marginBottom: spacing.md
+  },
+  languageGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm
+  },
+  languageOption: {
+    width: "48%",
+    minHeight: 58,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    justifyContent: "center"
+  },
+  languageOptionActive: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primarySoft
+  },
+  languageOptionPressed: {
+    opacity: 0.84
+  },
+  languageName: {
+    color: colors.text,
+    fontFamily: fontFamilies.sans,
+    fontSize: typography.small,
+    fontWeight: fontWeights.semibold
+  },
+  languageNameActive: {
+    color: colors.primaryDark
+  },
+  languageRegion: {
+    color: colors.muted,
+    fontFamily: fontFamilies.sans,
+    fontSize: typography.micro,
+    marginTop: 2
+  },
+  languageRegionActive: {
+    color: colors.primary
   },
   name: {
     fontFamily: fontFamilies.display,

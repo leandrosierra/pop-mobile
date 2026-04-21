@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { PopInterest, PopLocation } from "@/domain/schemas";
+import { SupportedLanguageCode } from "@/localization/languages";
 import { offlineQueueStorage } from "@/utils/offlineQueueStorage";
 
 type AnswerPayload = {
@@ -69,6 +70,13 @@ export type OfflineOperation =
       type: "SET_QUESTION_STATUS";
       token: string;
       payload: AdminStatusPayload;
+    }
+  | {
+      id: string;
+      createdAt: string;
+      type: "SET_LANGUAGE";
+      token: string;
+      payload: { language: SupportedLanguageCode };
     };
 
 export type OfflineOperationInput = Omit<OfflineOperation, "id" | "createdAt">;

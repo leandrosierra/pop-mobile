@@ -45,7 +45,7 @@ export default function LoginScreen() {
         <Text style={styles.logo}>POP!</Text>
         <Text style={styles.environmentTitle}>{pageTitle("POP")}</Text>
         <Text style={styles.welcome}>{t("welcome")}</Text>
-        <Text style={styles.subtitle}>Proposez la politique que vous souhaitez en votant et lançant vos référendums.</Text>
+        <Text style={styles.subtitle}>{t("appSubtitle")}</Text>
       </View>
       <View style={styles.form}>
         <Text style={styles.sectionTitle}>{t("emailLogin")}</Text>

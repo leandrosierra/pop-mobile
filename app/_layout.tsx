@@ -7,6 +7,7 @@ import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { isApiNetworkError } from "@/api/client";
 import { AuthBootstrap } from "@/components/AuthGate";
+import { LanguageBootstrap } from "@/components/LanguageBootstrap";
 import { OfflineManager } from "@/components/OfflineManager";
 import { OfflineStatusBadge } from "@/components/OfflineStatusBadge";
 import { useDocumentTitle } from "@/config/environment";
@@ -38,6 +39,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
+        <LanguageBootstrap />
         <AuthBootstrap />
         <OfflineManager />
         <StatusBar style="dark" />
