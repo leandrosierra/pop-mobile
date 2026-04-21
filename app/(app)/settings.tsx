@@ -95,6 +95,7 @@ export default function SettingsScreen() {
   const user = userQuery.data ?? cachedUser;
   if (!user) return <ErrorState label={t("errorLoadingUserInfo")} />;
   const canChangePassword = password.length > 0 && password === confirmPassword;
+  const isAdminUser = user.role.toUpperCase() === "ADMIN";
 
   return (
     <AppScreen scroll>
@@ -170,24 +171,26 @@ export default function SettingsScreen() {
           icon={<LogOut color={colors.primary} size={18} />}
           onPress={() => signOut().then(() => router.replace("/login"))}
         />
-        <AppButton
-          label={t("deleteAccount")}
-          variant="danger"
-          icon={<Trash2 color="#fff" size={18} />}
-          disabled={!online}
-          onPress={() =>
-            Alert.alert(t("deleteAccount"), t("deleteAccount"), [
-              { text: t("cancel"), style: "cancel" },
-              {
-                text: t("ok"),
-                style: "destructive",
-                onPress: () => deleteAccount().then(() => router.replace("/login")).catch((err) => {
-                  if (!isApiNetworkError(err)) Alert.alert(t("cannotProcessRequest"), err instanceof Error ? err.message : t("dataAccessProblem"));
-                })
-              }
-            ])
-          }
-        />
+        {!isAdminUser ? (
+          <AppButton
+            label={t("deleteAccount")}
+            variant="danger"
+            icon={<Trash2 color="#fff" size={18} />}
+            disabled={!online}
+            onPress={() =>
+              Alert.alert(t("deleteAccount"), t("deleteAccount"), [
+                { text: t("cancel"), style: "cancel" },
+                {
+                  text: t("ok"),
+                  style: "destructive",
+                  onPress: () => deleteAccount().then(() => router.replace("/login")).catch((err) => {
+                    if (!isApiNetworkError(err)) Alert.alert(t("cannotProcessRequest"), err instanceof Error ? err.message : t("dataAccessProblem"));
+                  })
+                }
+              ])
+            }
+          />
+        ) : null}
       </View>
     </AppScreen>
   );
