@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useMutation } from "@tanstack/react-query";
-import { Apple, LockKeyhole, UserRound } from "lucide-react-native";
+import { LockKeyhole, UserRound } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { AppButton } from "@/components/AppButton";
 import { AppScreen } from "@/components/AppScreen";
 import { FormField } from "@/components/FormField";
+import { SocialProviderIcon } from "@/components/SocialProviderIcon";
 import { pageTitle, useDocumentTitle } from "@/config/environment";
-import { canShowProvider, signInWithSocialProvider, SocialProvider } from "@/services/socialAuth";
+import { signInWithSocialProvider, SocialAuthCancelledError, SocialProvider, socialProviders } from "@/services/socialAuth";
 import { useAuthStore } from "@/store/authStore";
 import { colors, fontFamilies, fontWeights, radii, spacing, typography } from "@/theme";
 import { postAuthRouteForUser } from "@/utils/authRouting";
@@ -31,7 +32,10 @@ export default function LoginScreen() {
 
   const socialMutation = useMutation({
     mutationFn: (provider: SocialProvider) => signInWithSocialProvider(provider),
-    onError: (err) => setError(t(err instanceof Error ? err.message : "socialSetupRequired"))
+    onError: (err) => {
+      if (err instanceof SocialAuthCancelledError) return;
+      setError(t(err instanceof Error ? err.message : "socialSetupRequired"));
+    }
   });
 
   const submit = () => {
@@ -78,26 +82,24 @@ export default function LoginScreen() {
         </View>
         <Text style={styles.socialTitle}>{t("connectWith")}</Text>
         <View style={styles.socialRow}>
-          <Pressable style={styles.socialButton} onPress={() => socialMutation.mutate("google")}>
-            <Text style={styles.socialInitial}>G</Text>
-          </Pressable>
-          <AppleProviderButton onPress={() => socialMutation.mutate("apple")} />
+          {socialProviders.map((provider) => (
+            <Pressable
+              key={provider.id}
+              accessibilityLabel={`${t("connectWith")} ${provider.label}`}
+              disabled={socialMutation.isPending}
+              style={({ pressed }) => [
+                styles.socialButton,
+                pressed && styles.socialButtonPressed,
+                socialMutation.isPending && styles.socialButtonDisabled
+              ]}
+              onPress={() => socialMutation.mutate(provider.id)}
+            >
+              <SocialProviderIcon provider={provider.id} />
+            </Pressable>
+          ))}
         </View>
       </View>
     </AppScreen>
-  );
-}
-
-function AppleProviderButton({ onPress }: { onPress: () => void }) {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    canShowProvider("apple").then(setVisible);
-  }, []);
-  if (!visible) return null;
-  return (
-    <Pressable style={styles.socialButton} onPress={onPress}>
-      <Apple color={colors.primary} size={24} />
-    </Pressable>
   );
 }
 
@@ -190,10 +192,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center"
   },
-  socialInitial: {
-    color: colors.primary,
-    fontFamily: fontFamilies.sans,
-    fontSize: typography.subtitle,
-    fontWeight: fontWeights.bold
+  socialButtonPressed: {
+    opacity: 0.78
+  },
+  socialButtonDisabled: {
+    opacity: 0.56
   }
 });
