@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useMutation } from "@tanstack/react-query";
 import { LockKeyhole, UserRound } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
@@ -13,9 +13,11 @@ import { requestSocialCredential, SocialAuthCancelledError, SocialProvider, soci
 import { useAuthStore } from "@/store/authStore";
 import { colors, fontFamilies, fontWeights, radii, spacing, typography } from "@/theme";
 import { postAuthRouteForUser } from "@/utils/authRouting";
+import { safeInternalRoute } from "@/utils/redirectRoute";
 
 export default function LoginScreen() {
   const { t } = useTranslation();
+  const params = useLocalSearchParams<{ next?: string | string[] }>();
   useDocumentTitle("POP");
   const signInWithEmail = useAuthStore((state) => state.signInWithEmail);
   const signInWithOAuth = useAuthStore((state) => state.signInWithOAuth);
@@ -26,7 +28,7 @@ export default function LoginScreen() {
   const loginMutation = useMutation({
     mutationFn: () => signInWithEmail(email.trim(), password),
     onSuccess: (user) => {
-      router.replace(postAuthRouteForUser(user));
+      router.replace(safeInternalRoute(params.next) || postAuthRouteForUser(user));
     },
     onError: (err) => setError(err instanceof Error ? err.message : t("unableToLoginPleaseCheck"))
   });
@@ -34,7 +36,7 @@ export default function LoginScreen() {
   const socialMutation = useMutation({
     mutationFn: async (provider: SocialProvider) => signInWithOAuth(await requestSocialCredential(provider)),
     onSuccess: (user) => {
-      router.replace(postAuthRouteForUser(user));
+      router.replace(safeInternalRoute(params.next) || postAuthRouteForUser(user));
     },
     onError: (err) => {
       if (err instanceof SocialAuthCancelledError) return;

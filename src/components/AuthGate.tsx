@@ -1,9 +1,10 @@
 import { ReactNode, useEffect } from "react";
-import { router, usePathname, useRootNavigationState, useSegments } from "expo-router";
+import { router, useLocalSearchParams, usePathname, useRootNavigationState, useSegments } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { LoadingState } from "@/components/Feedback";
 import { useAuthStore } from "@/store/authStore";
 import { isAdminUser, postAuthRouteForUser } from "@/utils/authRouting";
+import { currentRouteWithQuery, safeInternalRoute } from "@/utils/redirectRoute";
 
 type AuthGateProps = {
   children: ReactNode;
@@ -43,12 +44,14 @@ export function AuthGate({ children, requireAdmin = false, requireSetup = true }
   const hydrated = useAuthStore((state) => state.hydrated);
   const user = useAuthStore((state) => state.user);
   const accessToken = useAuthStore((state) => state.accessToken);
+  const pathname = usePathname();
+  const params = useLocalSearchParams();
   useAuthHydration();
 
   useEffect(() => {
     if (!navigationReady || !hydrated) return;
     if (!accessToken || !user) {
-      router.replace("/login");
+      router.replace({ pathname: "/login", params: { next: currentRouteWithQuery(pathname, params, ["id"]) } });
       return;
     }
 
@@ -61,7 +64,7 @@ export function AuthGate({ children, requireAdmin = false, requireSetup = true }
     if (requireAdmin && !isAdminUser(user)) {
       router.replace(nextRoute);
     }
-  }, [accessToken, hydrated, navigationReady, requireAdmin, requireSetup, user]);
+  }, [accessToken, hydrated, navigationReady, params, pathname, requireAdmin, requireSetup, user]);
 
   if (!navigationReady || !hydrated || !accessToken || !user) {
     return <LoadingState label={t("loadingUserProfile")} />;
@@ -83,11 +86,12 @@ export function AuthRedirect({ children }: { children: ReactNode }) {
   const hydrated = useAuthStore((state) => state.hydrated);
   const user = useAuthStore((state) => state.user);
   const accessToken = useAuthStore((state) => state.accessToken);
+  const params = useLocalSearchParams();
 
   useEffect(() => {
     if (!navigationReady || !hydrated || !accessToken || !user) return;
-    router.replace(postAuthRouteForUser(user));
-  }, [accessToken, hydrated, navigationReady, user]);
+    router.replace(safeInternalRoute(params.next) || postAuthRouteForUser(user));
+  }, [accessToken, hydrated, navigationReady, params.next, user]);
 
   if (accessToken && user) {
     return null;

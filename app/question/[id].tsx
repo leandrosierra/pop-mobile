@@ -1,6 +1,7 @@
 import { useLocalSearchParams, router } from "expo-router";
-import { Share, StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Share2 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { AppButton } from "@/components/AppButton";
 import { AppCard } from "@/components/AppCard";
@@ -18,9 +19,19 @@ import { popApi } from "@/api/pop";
 import { PopQuestion } from "@/domain/schemas";
 import { useAuthStore } from "@/store/authStore";
 import { cardColors, colors, fontFamilies, fontWeights, spacing, typography } from "@/theme";
+import { buildQuestionSharePayload, QuestionShareMode } from "@/utils/questionShare";
+import { shareContent } from "@/utils/shareContent";
 
 type Mode = "detail" | "stats" | "discussion" | "meetings" | "law" | "vote";
 type PanelMode = Exclude<Mode, "vote">;
+
+const shareCtaKeys: Record<PanelMode, string> = {
+  detail: "shareQuestionDetailCta",
+  stats: "shareQuestionStatsCta",
+  discussion: "shareQuestionDiscussionCta",
+  meetings: "shareQuestionMeetingsCta",
+  law: "shareQuestionLawCta"
+};
 
 export default function QuestionScreen() {
   const { t } = useTranslation();
@@ -42,6 +53,18 @@ export default function QuestionScreen() {
       if (result.queued) router.replace("/home");
       else router.replace({ pathname: "/question/[id]", params: { id: String(id), mode: "stats" } });
     }
+  });
+
+  const shareMutation = useMutation({
+    mutationFn: () => shareContent(buildQuestionSharePayload(query.data!, panelMode as QuestionShareMode, {
+      headline: t("shareQuestionHeadline"),
+      cta: t(shareCtaKeys[panelMode]),
+      tagsLabel: t("shareQuestionTags")
+    })),
+    onSuccess: (result) => {
+      if (result === "copied") Alert.alert(t("requestSuccess"), t("shareCopied"));
+    },
+    onError: (err) => Alert.alert(t("cannotProcessRequest"), err instanceof Error ? err.message : t("cannotProcessRequest"))
   });
 
   if (query.isLoading) return <LoadingState label={t("loadingData")} />;
@@ -115,7 +138,9 @@ export default function QuestionScreen() {
           <AppButton
             label={t("shareToFriends")}
             variant="secondary"
-            onPress={() => Share.share({ message: `POP: ${detail.questionTitle}` })}
+            icon={<Share2 color={colors.text} size={16} />}
+            loading={shareMutation.isPending}
+            onPress={() => shareMutation.mutate()}
           />
         </View>
       </AppCard>
