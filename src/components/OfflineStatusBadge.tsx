@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
+import { usePathname, useSegments } from "expo-router";
 import { RefreshCw, WifiOff } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { useOfflineStore } from "@/store/offlineStore";
@@ -6,11 +7,14 @@ import { colors, fontFamilies, fontWeights, radii, shadows, spacing, typography 
 
 export function OfflineStatusBadge() {
   const { t } = useTranslation();
+  const pathname = usePathname();
+  const segments = useSegments();
   const online = useOfflineStore((state) => state.online);
   const syncing = useOfflineStore((state) => state.syncing);
   const queueLength = useOfflineStore((state) => state.queue.length);
+  const isAuthRoute = segments[0] === "(auth)" || pathname === "/login" || pathname === "/signup" || pathname === "/forgot-password";
 
-  if (online && !syncing && queueLength === 0) return null;
+  if (isAuthRoute || (online && !syncing && queueLength === 0)) return null;
 
   const label = syncing
     ? t("offlineSyncing")
