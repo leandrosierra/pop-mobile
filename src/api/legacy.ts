@@ -65,6 +65,10 @@ export type LegacyStat = {
   user?: LegacyUser;
 };
 
+export type LegacyAnsweredQuestion = PopAnsweredQuestion & {
+  summaryKey: string;
+};
+
 export const legacyInterests = [
   { code: "Ecologie", label: "Ecologie" },
   { code: "Education", label: "Education" },
@@ -151,9 +155,10 @@ export function mapLegacyQuestionDetail(question: LegacyQuestion, stats: LegacyS
   };
 }
 
-export function mapLegacyAnsweredQuestion(stat: LegacyStat): PopAnsweredQuestion {
+export function mapLegacyAnsweredQuestion(stat: LegacyStat): LegacyAnsweredQuestion {
   return {
     ...mapLegacyQuestion(stat.question || { id: 0 }),
+    summaryKey: `answered-${stat.idStat}`,
     response: stat.reponse?.libelle || stat.reponse?.code || ""
   };
 }

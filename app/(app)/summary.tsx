@@ -13,7 +13,15 @@ import { useAuthStore } from "@/store/authStore";
 import { colors, radii, shadows, spacing, typography } from "@/theme";
 
 type TabName = "authored" | "answered";
-type SummaryItem = PopQuestion | PopAnsweredQuestion;
+type SummaryItem = (PopQuestion | PopAnsweredQuestion) & {
+  summaryKey?: string;
+};
+
+const summaryItemKey = (tab: TabName) => (item: SummaryItem, index: number) => {
+  if (item.summaryKey) return item.summaryKey;
+  if ("response" in item) return `answered-${item.id}-${item.response}-${index}`;
+  return `authored-${item.id}`;
+};
 
 export default function SummaryScreen() {
   const { t } = useTranslation();
@@ -55,7 +63,7 @@ export default function SummaryScreen() {
         {activeQuery.data ? (
           <FlatList<SummaryItem>
             data={data}
-            keyExtractor={(item) => String(item.id)}
+            keyExtractor={summaryItemKey(tab)}
             ItemSeparatorComponent={() => <View style={styles.separator} />}
             renderItem={({ item }) => (
               <Pressable
