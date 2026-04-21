@@ -20,7 +20,7 @@ export function OfflineStatusBadge() {
   const Icon = online ? RefreshCw : WifiOff;
 
   return (
-    <View pointerEvents="none" style={styles.wrapper}>
+    <View style={styles.wrapper}>
       <View style={[styles.badge, online ? styles.pending : styles.offline]}>
         <Icon color={online ? colors.warning : colors.danger} size={15} />
         <Text style={[styles.label, online ? styles.pendingText : styles.offlineText]} numberOfLines={1}>
@@ -34,6 +34,7 @@ export function OfflineStatusBadge() {
 const styles = StyleSheet.create({
   wrapper: {
     position: "absolute",
+    pointerEvents: "none",
     top: 10,
     left: spacing.md,
     right: spacing.md,

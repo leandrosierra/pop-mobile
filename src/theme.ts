@@ -108,31 +108,19 @@ export const fontWeights = {
 
 export const shadows = {
   xs: {
-    shadowColor: colors.gray900,
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
-    shadowOffset: { width: 0, height: 1 },
+    boxShadow: "0 1px 2px rgba(15, 19, 29, 0.04)",
     elevation: 1
   },
   sm: {
-    shadowColor: colors.gray900,
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
+    boxShadow: "0 2px 8px rgba(15, 19, 29, 0.06)",
     elevation: 2
   },
   md: {
-    shadowColor: colors.gray900,
-    shadowOpacity: 0.1,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
+    boxShadow: "0 8px 18px rgba(15, 19, 29, 0.1)",
     elevation: 4
   },
   lg: {
-    shadowColor: colors.gray900,
-    shadowOpacity: 0.14,
-    shadowRadius: 28,
-    shadowOffset: { width: 0, height: 14 },
+    boxShadow: "0 14px 28px rgba(15, 19, 29, 0.14)",
     elevation: 8
   }
 };
