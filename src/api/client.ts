@@ -103,11 +103,11 @@ export async function checkApiReachability() {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 3_000);
   try {
-    await fetch(buildUrl(isLegacyApi ? "/user/current" : "/pop/user/current"), {
+    await fetch(buildUrl("/"), {
       method: "GET",
       cache: "no-store",
       signal: controller.signal,
-      headers: { Accept: "application/json" }
+      headers: { Accept: "application/json, text/plain, */*" }
     });
     return true;
   } catch {

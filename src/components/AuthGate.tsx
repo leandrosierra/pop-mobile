@@ -1,5 +1,5 @@
 import { ReactNode, useEffect } from "react";
-import { router, useRootNavigationState } from "expo-router";
+import { router, usePathname, useRootNavigationState, useSegments } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { LoadingState } from "@/components/Feedback";
 import { useAuthStore } from "@/store/authStore";
@@ -24,7 +24,16 @@ function useNavigationReady() {
 }
 
 export function AuthBootstrap() {
-  useAuthHydration();
+  const hydrate = useAuthStore((state) => state.hydrate);
+  const navigationReady = useNavigationReady();
+  const pathname = usePathname();
+  const segments = useSegments();
+  const isAuthRoute = segments[0] === "(auth)" || pathname === "/login" || pathname === "/signup" || pathname === "/forgot-password";
+
+  useEffect(() => {
+    if (navigationReady && !isAuthRoute) void hydrate();
+  }, [hydrate, isAuthRoute, navigationReady]);
+
   return null;
 }
 
@@ -70,24 +79,18 @@ export function AuthGate({ children, requireAdmin = false, requireSetup = true }
 }
 
 export function AuthRedirect({ children }: { children: ReactNode }) {
-  const { t } = useTranslation();
   const navigationReady = useNavigationReady();
   const hydrated = useAuthStore((state) => state.hydrated);
   const user = useAuthStore((state) => state.user);
   const accessToken = useAuthStore((state) => state.accessToken);
-  useAuthHydration();
 
   useEffect(() => {
     if (!navigationReady || !hydrated || !accessToken || !user) return;
     router.replace(postAuthRouteForUser(user));
   }, [accessToken, hydrated, navigationReady, user]);
 
-  if (!navigationReady || !hydrated) {
-    return <LoadingState label={t("loadingUserProfile")} />;
-  }
-
   if (accessToken && user) {
-    return <LoadingState label={t("loadingUserProfile")} />;
+    return null;
   }
 
   return <>{children}</>;
