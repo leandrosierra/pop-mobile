@@ -64,29 +64,32 @@ export default function AdminQuestionScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    gap: spacing.md,
-    marginTop: spacing.md
+    width: "100%",
+    maxWidth: 460,
+    alignSelf: "center",
+    gap: spacing.sm,
+    marginTop: spacing.sm
   },
   title: {
     fontFamily: fontFamilies.display,
     color: colors.primaryDark,
-    fontSize: typography.title,
-    lineHeight: 28,
+    fontSize: typography.subtitle,
+    lineHeight: 24,
     fontWeight: fontWeights.semibold
   },
   description: {
     fontFamily: fontFamilies.sans,
     color: colors.text,
     fontSize: typography.body,
-    lineHeight: 23
+    lineHeight: 20
   },
   tags: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: spacing.sm
+    gap: spacing.xs
   },
   actions: {
     gap: spacing.sm,
-    marginTop: spacing.md
+    marginTop: spacing.sm
   }
 });

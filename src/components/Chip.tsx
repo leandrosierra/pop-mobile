@@ -30,7 +30,7 @@ export function Chip({ label, selected = false, onPress, onRemove }: ChipProps) 
 
 const styles = StyleSheet.create({
   root: {
-    minHeight: 32,
+    minHeight: 28,
     maxWidth: "100%",
     borderRadius: radii.full,
     borderWidth: 1,
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.xs,
     paddingHorizontal: spacing.sm,
-    paddingVertical: 6
+    paddingVertical: spacing.xs
   },
   selected: {
     backgroundColor: colors.primary,
@@ -52,14 +52,14 @@ const styles = StyleSheet.create({
     fontSize: typography.small,
     fontWeight: fontWeights.medium,
     flexShrink: 1,
-    lineHeight: 18
+    lineHeight: 16
   },
   selectedLabel: {
     color: "#fff"
   },
   remove: {
-    width: 20,
-    height: 20,
+    width: 18,
+    height: 18,
     alignItems: "center",
     justifyContent: "center"
   }

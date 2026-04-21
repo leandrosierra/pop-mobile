@@ -77,13 +77,17 @@ export default function InterestSetupScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    gap: spacing.md,
-    marginTop: spacing.lg
+    width: "100%",
+    maxWidth: 420,
+    alignSelf: "center",
+    gap: spacing.sm,
+    marginTop: spacing.sm
   },
   title: {
     fontFamily: fontFamilies.display,
     color: colors.primaryDark,
-    fontSize: typography.subtitle,
+    fontSize: typography.body,
+    lineHeight: 20,
     fontWeight: fontWeights.semibold
   },
   actions: {
@@ -92,11 +96,12 @@ const styles = StyleSheet.create({
   chipWrap: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: spacing.sm
+    gap: spacing.xs
   },
   error: {
     color: colors.danger,
     fontFamily: fontFamilies.sans,
+    fontSize: typography.small,
     fontWeight: fontWeights.semibold
   }
 });

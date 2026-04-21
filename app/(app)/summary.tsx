@@ -12,7 +12,7 @@ import { TimestampBadge } from "@/components/TimestampBadge";
 import { popApi } from "@/api/pop";
 import { PopAnsweredQuestion, PopQuestion } from "@/domain/schemas";
 import { useAuthStore } from "@/store/authStore";
-import { colors, fontFamilies, fontWeights, radii, shadows, spacing, typography } from "@/theme";
+import { colors, fontFamilies, fontWeights, radii, spacing, typography } from "@/theme";
 
 type TabName = "authored" | "answered";
 type SummaryItem = (PopQuestion | PopAnsweredQuestion) & {
@@ -49,8 +49,8 @@ export default function SummaryScreen() {
       <Header title={t("summary")} settings={false} />
       <View style={styles.content}>
         <View style={styles.actions}>
-          <AppButton label={t("submitReferendum")} onPress={() => router.push("/create-question")} />
-          {user?.role === "ADMIN" ? <AppButton label={t("approvals")} variant="secondary" onPress={() => router.push("/admin")} /> : null}
+          <AppButton label={t("submitReferendum")} size="sm" onPress={() => router.push("/create-question")} />
+          {user?.role === "ADMIN" ? <AppButton label={t("approvals")} size="sm" variant="secondary" onPress={() => router.push("/admin")} /> : null}
         </View>
         <SegmentedControl
           value={tab}
@@ -66,6 +66,7 @@ export default function SummaryScreen() {
           <FlatList<SummaryItem>
             data={data}
             keyExtractor={summaryItemKey(tab)}
+            contentContainerStyle={styles.listContent}
             ItemSeparatorComponent={() => <View style={styles.separator} />}
             renderItem={({ item }) => (
               <Pressable
@@ -86,7 +87,7 @@ export default function SummaryScreen() {
                     locale={i18n.language}
                   />
                 </View>
-                <Text style={styles.questionTitle}>{item.questionTitle}</Text>
+                <Text style={styles.questionTitle} numberOfLines={2}>{item.questionTitle}</Text>
                 {"response" in item ? <Text style={styles.response}>{t("answerPrefix")}: {String(item.response)}</Text> : null}
               </Pressable>
             )}
@@ -100,37 +101,41 @@ export default function SummaryScreen() {
 const styles = StyleSheet.create({
   content: {
     flex: 1,
-    padding: spacing.md,
-    gap: spacing.md
-  },
-  actions: {
+    padding: spacing.sm,
     gap: spacing.sm
   },
+  actions: {
+    flexDirection: "row",
+    gap: spacing.sm
+  },
+  listContent: {
+    paddingBottom: spacing.sm
+  },
   separator: {
-    height: spacing.sm
+    height: spacing.xs
   },
   listItem: {
-    borderRadius: radii.md,
+    borderRadius: radii.sm,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
-    padding: spacing.md,
-    ...shadows.sm
+    padding: spacing.sm
   },
   itemHeader: {
     flexDirection: "row",
-    marginBottom: spacing.sm
+    marginBottom: spacing.xs
   },
   questionTitle: {
     fontFamily: fontFamilies.sans,
     color: colors.text,
-    fontSize: typography.body,
-    lineHeight: 21,
+    fontSize: typography.small,
+    lineHeight: 18,
     fontWeight: fontWeights.semibold
   },
   response: {
     fontFamily: fontFamilies.sans,
     color: colors.muted,
+    fontSize: typography.tiny,
     marginTop: spacing.xs
   }
 });

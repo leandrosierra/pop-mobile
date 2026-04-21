@@ -111,11 +111,11 @@ const styles = StyleSheet.create({
   hero: {
     backgroundColor: colors.primary,
     alignItems: "center",
-    paddingTop: 36,
-    paddingBottom: 28,
+    paddingTop: 24,
+    paddingBottom: 18,
     paddingHorizontal: spacing.lg,
-    borderBottomLeftRadius: spacing.lg,
-    borderBottomRightRadius: spacing.lg
+    borderBottomLeftRadius: spacing.md,
+    borderBottomRightRadius: spacing.md
   },
   heroContent: {
     width: "100%",
@@ -125,24 +125,24 @@ const styles = StyleSheet.create({
   logo: {
     color: "#fff",
     fontFamily: fontFamilies.display,
-    fontSize: 44,
-    lineHeight: 46,
+    fontSize: 38,
+    lineHeight: 40,
     fontWeight: fontWeights.black,
     letterSpacing: 0
   },
   welcome: {
     fontFamily: fontFamilies.display,
     color: "#fff",
-    fontSize: typography.title,
-    lineHeight: 28,
+    fontSize: typography.subtitle,
+    lineHeight: 23,
     fontWeight: fontWeights.semibold,
-    marginTop: spacing.md
+    marginTop: spacing.sm
   },
   environmentTitle: {
     fontFamily: fontFamilies.sans,
     color: "#fff",
-    fontSize: typography.small,
-    lineHeight: 18,
+    fontSize: typography.tiny,
+    lineHeight: 16,
     fontWeight: fontWeights.semibold,
     opacity: 0.86,
     marginBottom: spacing.xs
@@ -152,20 +152,20 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
     marginTop: spacing.xs,
-    fontSize: typography.small,
-    lineHeight: 19,
+    fontSize: typography.tiny,
+    lineHeight: 17,
     opacity: 0.88
   },
   formWrap: {
     alignItems: "center",
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.lg,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.md,
     backgroundColor: colors.surface
   },
   form: {
     width: "100%",
-    maxWidth: 360,
+    maxWidth: 340,
     gap: spacing.sm
   },
   sectionTitle: {
@@ -199,9 +199,9 @@ const styles = StyleSheet.create({
     gap: spacing.md
   },
   socialButton: {
-    width: 44,
-    height: 44,
-    borderRadius: radii.md,
+    width: 40,
+    height: 40,
+    borderRadius: radii.sm,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,

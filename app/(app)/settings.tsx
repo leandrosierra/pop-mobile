@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { useMemo, useState } from "react";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { KeyRound, LogOut, Trash2 } from "lucide-react-native";
@@ -12,8 +12,9 @@ import { Chip } from "@/components/Chip";
 import { ErrorState, LoadingState } from "@/components/Feedback";
 import { FormField } from "@/components/FormField";
 import { Header } from "@/components/Header";
+import { SelectField, SelectOption } from "@/components/SelectField";
 import { popApi } from "@/api/pop";
-import { supportedLanguages, SupportedLanguageCode } from "@/localization/languages";
+import { normalizeLanguageCode, supportedLanguages, SupportedLanguageCode } from "@/localization/languages";
 import { useAuthStore } from "@/store/authStore";
 import { useOfflineStore } from "@/store/offlineStore";
 import { colors, fontFamilies, fontWeights, spacing, typography } from "@/theme";
@@ -32,6 +33,14 @@ export default function SettingsScreen() {
   const online = useOfflineStore((state) => state.online);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const languageOptions = useMemo<SelectOption<SupportedLanguageCode>[]>(
+    () => supportedLanguages.map((language) => ({
+      value: language.code,
+      label: language.nativeName,
+      detail: language.regionName
+    })),
+    []
+  );
 
   const userQuery = useQuery({
     queryKey: ["current-user"],
@@ -84,7 +93,6 @@ export default function SettingsScreen() {
     mutationFn: (language: SupportedLanguageCode) => updateLanguage(language),
     onSuccess: () => {
       queryClient.setQueryData(["current-user"], useAuthStore.getState().user);
-      Alert.alert(t("requestSuccess"), online ? t("languageSaved") : t("queuedLanguageChange"));
     },
     onError: (err) => Alert.alert(t("languageUpdateError"), err instanceof Error ? err.message : t("cannotProcessRequest"))
   });
@@ -94,6 +102,7 @@ export default function SettingsScreen() {
 
   const user = userQuery.data ?? cachedUser;
   if (!user) return <ErrorState label={t("errorLoadingUserInfo")} />;
+  const selectedLanguage = normalizeLanguageCode(user.language);
   const canChangePassword = password.length > 0 && password === confirmPassword;
   const isAdminUser = user.role.toUpperCase() === "ADMIN";
 
@@ -107,30 +116,14 @@ export default function SettingsScreen() {
       </AppCard>
 
       <AppCard style={styles.languageBox}>
-        <Text style={styles.section}>{t("interfaceLanguage")}</Text>
-        <Text style={styles.helper}>{t("profileLanguageHelp")}</Text>
-        <View style={styles.languageGrid}>
-          {supportedLanguages.map((language) => {
-            const active = language.code === user.language;
-            return (
-              <Pressable
-                key={language.code}
-                disabled={languageMutation.isPending}
-                onPress={() => languageMutation.mutate(language.code)}
-                style={({ pressed }) => [
-                  styles.languageOption,
-                  active && styles.languageOptionActive,
-                  pressed && styles.languageOptionPressed
-                ]}
-              >
-                <Text style={[styles.languageName, active && styles.languageNameActive]}>{language.nativeName}</Text>
-                <Text style={[styles.languageRegion, active && styles.languageRegionActive]} numberOfLines={1}>
-                  {language.regionName}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <SelectField
+          label={t("interfaceLanguage")}
+          value={selectedLanguage}
+          options={languageOptions}
+          disabled={languageMutation.isPending}
+          onChange={(language) => languageMutation.mutate(language)}
+        />
+        {!online ? <Text style={styles.helper}>{t("queuedLanguageChange")}</Text> : null}
       </AppCard>
 
       <Text style={styles.section}>{t("geographicalLocations")}</Text>
@@ -199,75 +192,37 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   profile: {
     width: "100%",
-    maxWidth: 380,
+    maxWidth: 420,
     alignSelf: "center",
     alignItems: "center",
     gap: spacing.xs,
-    marginTop: spacing.md,
-    marginBottom: spacing.md
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm
   },
   languageBox: {
     width: "100%",
-    maxWidth: 380,
+    maxWidth: 420,
     alignSelf: "center",
     gap: spacing.sm,
-    marginBottom: spacing.md
-  },
-  languageGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.sm
-  },
-  languageOption: {
-    width: "48%",
-    minHeight: 58,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.sm,
-    justifyContent: "center"
-  },
-  languageOptionActive: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primarySoft
-  },
-  languageOptionPressed: {
-    opacity: 0.84
-  },
-  languageName: {
-    color: colors.text,
-    fontFamily: fontFamilies.sans,
-    fontSize: typography.small,
-    fontWeight: fontWeights.semibold
-  },
-  languageNameActive: {
-    color: colors.primaryDark
-  },
-  languageRegion: {
-    color: colors.muted,
-    fontFamily: fontFamilies.sans,
-    fontSize: typography.micro,
-    marginTop: 2
-  },
-  languageRegionActive: {
-    color: colors.primary
+    marginBottom: spacing.sm
   },
   name: {
     fontFamily: fontFamilies.display,
     color: colors.primaryDark,
-    fontSize: typography.title,
+    fontSize: typography.subtitle,
+    lineHeight: 23,
     fontWeight: fontWeights.bold
   },
   email: {
     fontFamily: fontFamilies.sans,
     color: colors.muted,
+    fontSize: typography.small,
     fontWeight: fontWeights.medium
   },
   role: {
     fontFamily: fontFamilies.sans,
     color: colors.primary,
+    fontSize: typography.tiny,
     fontWeight: fontWeights.semibold
   },
   section: {
@@ -275,7 +230,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: typography.body,
     fontWeight: fontWeights.semibold,
-    marginTop: spacing.md
+    marginTop: spacing.sm
   },
   chipWrap: {
     flexDirection: "row",
@@ -285,10 +240,10 @@ const styles = StyleSheet.create({
   },
   passwordBox: {
     width: "100%",
-    maxWidth: 380,
+    maxWidth: 420,
     alignSelf: "center",
     gap: spacing.sm,
-    marginTop: spacing.lg
+    marginTop: spacing.md
   },
   error: {
     color: colors.danger,
@@ -298,14 +253,15 @@ const styles = StyleSheet.create({
   helper: {
     color: colors.muted,
     fontFamily: fontFamilies.sans,
+    fontSize: typography.tiny,
     fontWeight: fontWeights.medium
   },
   actions: {
     width: "100%",
-    maxWidth: 380,
+    maxWidth: 420,
     alignSelf: "center",
     gap: spacing.sm,
-    marginTop: spacing.lg,
-    paddingBottom: spacing.xl
+    marginTop: spacing.md,
+    paddingBottom: spacing.lg
   }
 });

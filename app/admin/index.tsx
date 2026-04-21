@@ -12,7 +12,7 @@ import { TimestampBadge } from "@/components/TimestampBadge";
 import { popApi } from "@/api/pop";
 import { PopQuestion } from "@/domain/schemas";
 import { useAuthStore } from "@/store/authStore";
-import { colors, fontFamilies, fontWeights, radii, shadows, spacing, typography } from "@/theme";
+import { colors, fontFamilies, fontWeights, radii, spacing, typography } from "@/theme";
 
 const statusTabs = ["DRAFT", "ACTIVE", "IDLE"] as const;
 type StatusTab = (typeof statusTabs)[number];
@@ -51,6 +51,7 @@ export default function AdminQuestionsScreen() {
           <FlatList<PopQuestion>
             data={questions}
             keyExtractor={(item) => String(item.id)}
+            contentContainerStyle={styles.listContent}
             ItemSeparatorComponent={() => <View style={styles.separator} />}
             renderItem={({ item }) => (
               <Pressable
@@ -65,13 +66,13 @@ export default function AdminQuestionsScreen() {
                 <View style={styles.itemHeader}>
                   <TimestampBadge value={item.createdAt} locale={i18n.language} />
                 </View>
-                <Text style={styles.questionTitle}>{item.questionTitle}</Text>
-                <Text style={styles.creator}>{item.creator}</Text>
+                <Text style={styles.questionTitle} numberOfLines={2}>{item.questionTitle}</Text>
+                <Text style={styles.creator} numberOfLines={1}>{item.creator}</Text>
               </Pressable>
             )}
           />
         ) : null}
-        <AppButton label={t("refresh")} variant="secondary" onPress={() => query.refetch()} />
+        <AppButton label={t("refresh")} size="sm" variant="secondary" onPress={() => query.refetch()} />
       </View>
     </AppScreen>
   );
@@ -80,34 +81,37 @@ export default function AdminQuestionsScreen() {
 const styles = StyleSheet.create({
   content: {
     flex: 1,
-    padding: spacing.md,
-    gap: spacing.md
+    padding: spacing.sm,
+    gap: spacing.sm
+  },
+  listContent: {
+    paddingBottom: spacing.sm
   },
   separator: {
-    height: spacing.sm
+    height: spacing.xs
   },
   item: {
-    borderRadius: radii.md,
+    borderRadius: radii.sm,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
-    padding: spacing.md,
-    ...shadows.sm
+    padding: spacing.sm
   },
   itemHeader: {
     flexDirection: "row",
-    marginBottom: spacing.sm
+    marginBottom: spacing.xs
   },
   questionTitle: {
     fontFamily: fontFamilies.sans,
     color: colors.text,
-    fontSize: typography.body,
-    lineHeight: 21,
+    fontSize: typography.small,
+    lineHeight: 18,
     fontWeight: fontWeights.semibold
   },
   creator: {
     fontFamily: fontFamilies.sans,
     color: colors.muted,
+    fontSize: typography.tiny,
     marginTop: spacing.xs
   }
 });

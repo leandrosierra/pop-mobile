@@ -127,12 +127,12 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
     justifyContent: "center",
-    gap: spacing.md
+    gap: spacing.sm
   },
   card: {
-    minHeight: 330,
-    borderRadius: radii.xxl,
-    padding: 22,
+    minHeight: 292,
+    borderRadius: radii.lg,
+    padding: spacing.md,
     justifyContent: "space-between",
     overflow: "hidden",
     ...shadows.lg
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.display,
     color: "#fff",
     fontSize: typography.h1,
-    lineHeight: 31,
+    lineHeight: 30,
     fontWeight: fontWeights.bold,
     letterSpacing: 0
   },
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.sans,
     color: "#fff",
     fontSize: typography.body,
-    lineHeight: 21,
+    lineHeight: 20,
     fontWeight: fontWeights.medium,
     opacity: 0.9
   },
@@ -192,10 +192,10 @@ const styles = StyleSheet.create({
   },
   voteButton: {
     flex: 1,
-    minHeight: 78,
-    borderWidth: 1.5,
+    minHeight: 62,
+    borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radii.lg,
+    borderRadius: radii.sm,
     backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center",
@@ -212,8 +212,8 @@ const styles = StyleSheet.create({
     borderColor: colors.greenSoft
   },
   voteIcon: {
-    width: 32,
-    height: 32,
+    width: 28,
+    height: 28,
     borderRadius: radii.full,
     alignItems: "center",
     justifyContent: "center"

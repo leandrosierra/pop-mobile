@@ -91,15 +91,15 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   content: {
     flex: 1,
-    padding: spacing.md,
-    gap: spacing.md
+    padding: spacing.sm,
+    gap: spacing.sm
   },
   empty: {
     flex: 1
   },
   emptyActions: {
     gap: spacing.sm,
-    marginTop: spacing.md
+    marginTop: spacing.sm
   },
   error: {
     color: colors.danger,
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.sans,
     fontSize: typography.micro,
     fontWeight: fontWeights.semibold,
-    letterSpacing: 0.8,
+    letterSpacing: 0.4,
     textTransform: "uppercase"
   },
   caption: {

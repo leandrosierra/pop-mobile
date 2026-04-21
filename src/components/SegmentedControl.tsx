@@ -35,13 +35,13 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radii.md,
+    borderRadius: radii.sm,
     backgroundColor: colors.surface,
     padding: 3
   },
   item: {
     flex: 1,
-    minHeight: 38,
+    minHeight: 34,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: radii.sm,
@@ -54,6 +54,7 @@ const styles = StyleSheet.create({
     color: colors.primaryDark,
     fontFamily: fontFamilies.sans,
     fontSize: typography.small,
+    lineHeight: 16,
     fontWeight: fontWeights.semibold
   },
   activeLabel: {

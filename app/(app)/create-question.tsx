@@ -120,16 +120,16 @@ export default function CreateQuestionScreen() {
 const styles = StyleSheet.create({
   form: {
     width: "100%",
-    maxWidth: 380,
+    maxWidth: 420,
     alignSelf: "center",
-    padding: spacing.md,
     gap: spacing.sm,
-    marginTop: spacing.sm
+    marginTop: spacing.xs
   },
   title: {
     fontFamily: fontFamilies.display,
     color: colors.primaryDark,
-    fontSize: typography.subtitle,
+    fontSize: typography.body,
+    lineHeight: 20,
     fontWeight: fontWeights.semibold
   },
   sectionBlock: {
@@ -144,12 +144,12 @@ const styles = StyleSheet.create({
   chipWrap: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: spacing.sm
+    gap: spacing.xs
   },
   helper: {
     fontFamily: fontFamilies.sans,
     color: colors.muted,
-    fontSize: typography.small,
+    fontSize: typography.tiny,
     fontWeight: fontWeights.medium
   }
 });

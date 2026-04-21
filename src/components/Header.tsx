@@ -49,7 +49,7 @@ export function Header({ title = "POP", back = false, settings = true, create = 
 
 const styles = StyleSheet.create({
   root: {
-    minHeight: 52,
+    minHeight: 48,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -66,9 +66,9 @@ const styles = StyleSheet.create({
     alignItems: "flex-end"
   },
   iconButton: {
-    width: 36,
-    height: 36,
-    borderRadius: radii.md,
+    width: 34,
+    height: 34,
+    borderRadius: radii.sm,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.gray100

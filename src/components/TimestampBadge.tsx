@@ -23,7 +23,7 @@ export function TimestampBadge({ value, locale, inverted = false }: TimestampBad
 
 const styles = StyleSheet.create({
   badge: {
-    minHeight: 24,
+    minHeight: 22,
     borderRadius: radii.full,
     backgroundColor: colors.surfaceMuted,
     flexDirection: "row",

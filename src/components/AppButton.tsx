@@ -58,8 +58,8 @@ export function AppButton({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 42,
-    borderRadius: radii.md,
+    minHeight: 38,
+    borderRadius: radii.sm,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: spacing.md,
@@ -68,17 +68,17 @@ const styles = StyleSheet.create({
     flexShrink: 0
   },
   sm: {
-    minHeight: 36,
+    minHeight: 32,
     borderRadius: radii.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs
   },
   md: {},
   lg: {
-    minHeight: 52,
-    borderRadius: radii.lg,
+    minHeight: 44,
+    borderRadius: radii.sm,
     paddingHorizontal: spacing.lg,
-    paddingVertical: 14
+    paddingVertical: spacing.sm
   },
   content: {
     flexDirection: "row",
@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: fontFamilies.sans,
     fontSize: typography.small,
+    lineHeight: 17,
     fontWeight: fontWeights.semibold,
     textAlign: "center"
   },

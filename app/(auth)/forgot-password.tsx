@@ -62,15 +62,16 @@ export default function ForgotPasswordScreen() {
 const styles = StyleSheet.create({
   form: {
     width: "100%",
-    maxWidth: 360,
+    maxWidth: 340,
     alignSelf: "center",
     gap: spacing.sm,
-    marginTop: spacing.md
+    marginTop: spacing.sm
   },
   title: {
     fontFamily: fontFamilies.display,
     color: colors.primaryDark,
-    fontSize: typography.subtitle,
+    fontSize: typography.body,
+    lineHeight: 20,
     fontWeight: fontWeights.semibold
   }
 });

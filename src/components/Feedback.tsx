@@ -60,11 +60,11 @@ const styles = StyleSheet.create({
   },
   panel: {
     width: "100%",
-    borderRadius: radii.lg,
+    borderRadius: radii.sm,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
-    padding: spacing.lg,
+    padding: spacing.md,
     ...shadows.sm
   }
 });

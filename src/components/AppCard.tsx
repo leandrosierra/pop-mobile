@@ -16,9 +16,9 @@ const styles = StyleSheet.create({
   root: {
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radii.lg,
+    borderRadius: radii.sm,
     backgroundColor: colors.surface,
-    padding: spacing.lg,
+    padding: spacing.md,
     ...shadows.xs
   },
   raised: {
