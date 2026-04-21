@@ -4,6 +4,7 @@ import { isApiNetworkError } from "@/api/client";
 import { PopInterest, PopLocation, PopUser } from "@/domain/schemas";
 import { applyAppLanguage } from "@/localization/languageController";
 import { normalizeLanguageCode, SupportedLanguageCode } from "@/localization/languages";
+import { SocialOAuthPayload } from "@/services/socialAuth";
 import { useOfflineStore } from "@/store/offlineStore";
 import { tokenStorage } from "@/utils/tokenStorage";
 import { userStorage } from "@/utils/userStorage";
@@ -16,6 +17,7 @@ type AuthState = {
   hydrate: () => Promise<void>;
   requireToken: () => string;
   signInWithEmail: (email: string, password: string) => Promise<PopUser>;
+  signInWithOAuth: (payload: SocialOAuthPayload) => Promise<PopUser>;
   refreshCurrentUser: () => Promise<PopUser | null>;
   createEmailAccount: (name: string, email: string) => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
@@ -79,6 +81,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
   async signInWithEmail(email, password) {
     const tokens = await authApi.signInWithEmail(email, password);
+    await tokenStorage.write(tokens.token, tokens.refreshToken);
+    const user = withNormalizedLanguage(await authApi.currentUser(tokens.token));
+    await applyAppLanguage(user.language);
+    await userStorage.write(user);
+    set({ user, accessToken: tokens.token, refreshToken: tokens.refreshToken, hydrated: true });
+    return user;
+  },
+  async signInWithOAuth(payload) {
+    const tokens = await authApi.signInWithOAuth(payload);
     await tokenStorage.write(tokens.token, tokens.refreshToken);
     const user = withNormalizedLanguage(await authApi.currentUser(tokens.token));
     await applyAppLanguage(user.language);

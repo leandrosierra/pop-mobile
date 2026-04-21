@@ -9,7 +9,7 @@ import { AppScreen } from "@/components/AppScreen";
 import { FormField } from "@/components/FormField";
 import { SocialProviderIcon } from "@/components/SocialProviderIcon";
 import { pageTitle, useDocumentTitle } from "@/config/environment";
-import { signInWithSocialProvider, SocialAuthCancelledError, SocialProvider, socialProviders } from "@/services/socialAuth";
+import { requestSocialCredential, SocialAuthCancelledError, SocialProvider, socialProviders } from "@/services/socialAuth";
 import { useAuthStore } from "@/store/authStore";
 import { colors, fontFamilies, fontWeights, radii, spacing, typography } from "@/theme";
 import { postAuthRouteForUser } from "@/utils/authRouting";
@@ -18,6 +18,7 @@ export default function LoginScreen() {
   const { t } = useTranslation();
   useDocumentTitle("POP");
   const signInWithEmail = useAuthStore((state) => state.signInWithEmail);
+  const signInWithOAuth = useAuthStore((state) => state.signInWithOAuth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +32,10 @@ export default function LoginScreen() {
   });
 
   const socialMutation = useMutation({
-    mutationFn: (provider: SocialProvider) => signInWithSocialProvider(provider),
+    mutationFn: async (provider: SocialProvider) => signInWithOAuth(await requestSocialCredential(provider)),
+    onSuccess: (user) => {
+      router.replace(postAuthRouteForUser(user));
+    },
     onError: (err) => {
       if (err instanceof SocialAuthCancelledError) return;
       setError(t(err instanceof Error ? err.message : "socialSetupRequired"));

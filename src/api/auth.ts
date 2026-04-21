@@ -1,5 +1,6 @@
 import { languageResponseSchema } from "@/domain/languageSchemas";
 import { SupportedLanguageCode, toApiLanguageCode } from "@/localization/languages";
+import { SocialOAuthPayload } from "@/services/socialAuth";
 import { apiRequest } from "./client";
 import { BackendUser, mapBackendUser } from "./backend";
 
@@ -14,6 +15,16 @@ export const authApi = {
     const response = await apiRequest<LoginResponse>("/user/login", {
       method: "POST",
       body: JSON.stringify({ login: email, password })
+    });
+    return {
+      token: response.token,
+      refreshToken: response.refreshToken
+    };
+  },
+  async signInWithOAuth(payload: SocialOAuthPayload) {
+    const response = await apiRequest<LoginResponse>("/user/oauth/login", {
+      method: "POST",
+      body: JSON.stringify(payload)
     });
     return {
       token: response.token,
