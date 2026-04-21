@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "739997967500",
+    "project_id": "popapp-806d5",
+    "storage_bucket": "popapp-806d5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:739997967500:android:ddd0593ebf14e45d92c7a9",
+        "android_client_info": {
+          "package_name": "com.lsi.pop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "739997967500-5ba5vqf7i6j4364e9q22nsekcb62glh6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lsi.pop",
+            "certificate_hash": "ac9e573c9a45d46833fca163ad97089cbbfb8e25"
+          }
+        },
+        {
+          "client_id": "739997967500-j84q0uq94rdnevbrnri9qd8oha092g2f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBudGy9DeTirELxXqqT7PwwX_Ss6rYGiY0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "739997967500-j84q0uq94rdnevbrnri9qd8oha092g2f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
