@@ -79,35 +79,39 @@ export default function CreateQuestionScreen() {
       <Header title={t("createNewQuestion")} create={false} settings={false} />
       <AppCard style={styles.form}>
         <Text style={styles.title}>{t("proposeReferendumHere")}</Text>
-        <FormField label={t("questionTitle")} value={questionTitle} onChangeText={setQuestionTitle} placeholder={t("questionTitle")} maxLength={120} multiline />
+        <FormField label={t("questionTitle")} value={questionTitle} onChangeText={setQuestionTitle} placeholder={t("questionTitle")} maxLength={120} />
         <FormField label={t("questionDescription")} value={questionDesc} onChangeText={setQuestionDesc} placeholder={t("questionDescription")} multiline />
 
-        <Text style={styles.section}>{t("geographicalLocations")}</Text>
-        <View style={styles.chipWrap}>
-          {selectedLocations.map((location) => (
-            <Chip key={`${location.type}-${location.id}`} label={location.label} selected onRemove={() => setSelectedLocations((current) => current.filter((item) => item !== location))} />
-          ))}
-        </View>
-        <FormField value={locationSearch} onChangeText={setLocationSearch} placeholder={t("search")} />
-        <View style={styles.chipWrap}>
-          {(locationsQuery.data ?? []).slice(0, 8).map((location) => (
-            <Chip key={`${location.type}-${location.id}`} label={location.label} onPress={() => addLocation(location)} />
-          ))}
+        <View style={styles.sectionBlock}>
+          <Text style={styles.section}>{t("geographicalLocations")}</Text>
+          <View style={styles.chipWrap}>
+            {selectedLocations.map((location) => (
+              <Chip key={`${location.type}-${location.id}`} label={location.label} selected onRemove={() => setSelectedLocations((current) => current.filter((item) => item !== location))} />
+            ))}
+          </View>
+          <FormField value={locationSearch} onChangeText={setLocationSearch} placeholder={t("search")} />
+          <View style={styles.chipWrap}>
+            {(locationsQuery.data ?? []).slice(0, 8).map((location) => (
+              <Chip key={`${location.type}-${location.id}`} label={location.label} onPress={() => addLocation(location)} />
+            ))}
+          </View>
         </View>
 
-        <Text style={styles.section}>{t("interests")}</Text>
-        <View style={styles.chipWrap}>
-          {(interestsQuery.data ?? []).map((interest) => (
-            <Chip
-              key={interest.code}
-              label={interest.label}
-              selected={selectedInterests.some((item) => item.code === interest.code)}
-              onPress={() => toggleInterest(interest)}
-            />
-          ))}
+        <View style={styles.sectionBlock}>
+          <Text style={styles.section}>{t("interests")}</Text>
+          <View style={styles.chipWrap}>
+            {(interestsQuery.data ?? []).map((interest) => (
+              <Chip
+                key={interest.code}
+                label={interest.label}
+                selected={selectedInterests.some((item) => item.code === interest.code)}
+                onPress={() => toggleInterest(interest)}
+              />
+            ))}
+          </View>
         </View>
         {formError ? <Text style={styles.helper}>{formError}</Text> : null}
-        <AppButton label={t("save")} size="lg" loading={saveMutation.isPending} disabled={Boolean(formError)} onPress={() => saveMutation.mutate()} />
+        <AppButton label={t("save")} loading={saveMutation.isPending} disabled={Boolean(formError)} onPress={() => saveMutation.mutate()} />
       </AppCard>
     </AppScreen>
   );
@@ -115,19 +119,26 @@ export default function CreateQuestionScreen() {
 
 const styles = StyleSheet.create({
   form: {
-    gap: spacing.md,
-    marginTop: spacing.md
+    width: "100%",
+    maxWidth: 380,
+    alignSelf: "center",
+    padding: spacing.md,
+    gap: spacing.sm,
+    marginTop: spacing.sm
   },
   title: {
     fontFamily: fontFamilies.display,
     color: colors.primaryDark,
-    fontSize: typography.title,
+    fontSize: typography.subtitle,
     fontWeight: fontWeights.semibold
+  },
+  sectionBlock: {
+    gap: spacing.xs
   },
   section: {
     fontFamily: fontFamilies.sans,
     color: colors.primary,
-    fontSize: typography.body,
+    fontSize: typography.small,
     fontWeight: fontWeights.semibold
   },
   chipWrap: {
@@ -138,6 +149,7 @@ const styles = StyleSheet.create({
   helper: {
     fontFamily: fontFamilies.sans,
     color: colors.muted,
+    fontSize: typography.small,
     fontWeight: fontWeights.medium
   }
 });

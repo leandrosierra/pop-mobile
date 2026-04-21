@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface
   },
   multilineShell: {
-    minHeight: 104,
+    minHeight: 92,
     alignItems: "flex-start",
     paddingVertical: spacing.sm
   },
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     outlineStyle: "none" as never
   },
   multilineInput: {
-    minHeight: 88,
+    minHeight: 76,
     textAlignVertical: "top"
   },
   helper: {
