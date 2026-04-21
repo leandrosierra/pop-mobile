@@ -18,25 +18,36 @@ type AuthState = {
   deleteAccount: () => Promise<void>;
 };
 
+let hydrationPromise: Promise<void> | null = null;
+
 export const useAuthStore = create<AuthState>((set, get) => ({
   hydrated: false,
   user: null,
   accessToken: null,
   refreshToken: null,
-  async hydrate() {
-    const tokens = await tokenStorage.read();
-    if (!tokens.accessToken) {
-      set({ hydrated: true, user: null, accessToken: null, refreshToken: null });
-      return;
-    }
+  hydrate() {
+    if (get().hydrated) return Promise.resolve();
+    if (hydrationPromise) return hydrationPromise;
 
-    try {
-      const user = await authApi.currentUser(tokens.accessToken);
-      set({ hydrated: true, user, accessToken: tokens.accessToken, refreshToken: tokens.refreshToken });
-    } catch {
-      await tokenStorage.clear();
-      set({ hydrated: true, user: null, accessToken: null, refreshToken: null });
-    }
+    hydrationPromise = (async () => {
+      const tokens = await tokenStorage.read();
+      if (!tokens.accessToken) {
+        set({ hydrated: true, user: null, accessToken: null, refreshToken: null });
+        return;
+      }
+
+      try {
+        const user = await authApi.currentUser(tokens.accessToken);
+        set({ hydrated: true, user, accessToken: tokens.accessToken, refreshToken: tokens.refreshToken });
+      } catch {
+        await tokenStorage.clear();
+        set({ hydrated: true, user: null, accessToken: null, refreshToken: null });
+      }
+    })().finally(() => {
+      hydrationPromise = null;
+    });
+
+    return hydrationPromise;
   },
   requireToken() {
     const token = get().accessToken;
@@ -63,6 +74,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     return authApi.forgotPassword(email);
   },
   async signOut() {
+    hydrationPromise = null;
     await tokenStorage.clear();
     set({ user: null, accessToken: null, refreshToken: null, hydrated: true });
   },

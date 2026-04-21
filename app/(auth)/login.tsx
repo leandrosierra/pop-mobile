@@ -11,6 +11,7 @@ import { pageTitle, useDocumentTitle } from "@/config/environment";
 import { canShowProvider, signInWithSocialProvider, SocialProvider } from "@/services/socialAuth";
 import { useAuthStore } from "@/store/authStore";
 import { colors, fontFamilies, fontWeights, radii, spacing, typography } from "@/theme";
+import { postAuthRouteForUser } from "@/utils/authRouting";
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -23,9 +24,7 @@ export default function LoginScreen() {
   const loginMutation = useMutation({
     mutationFn: () => signInWithEmail(email.trim(), password),
     onSuccess: (user) => {
-      if (!user.userChoiceGeo.length) router.replace("/setup/geography");
-      else if (!user.userInterest.length) router.replace("/setup/interests");
-      else router.replace("/home");
+      router.replace(postAuthRouteForUser(user));
     },
     onError: (err) => setError(err instanceof Error ? err.message : t("unableToLoginPleaseCheck"))
   });
