@@ -28,9 +28,9 @@ export default function AdminQuestionScreen() {
 
   const statusMutation = useMutation({
     mutationFn: (status: AdminStatus) => popApi.setQuestionStatus(token, id, status),
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["admin-questions"] });
-      Alert.alert(t("requestSuccess"), t("questionStatusUpdatedSuccessfully"), [
+      Alert.alert(t("requestSuccess"), result.queued ? t("offlineChangeSaved") : t("questionStatusUpdatedSuccessfully"), [
         { text: t("ok"), onPress: () => router.back() }
       ]);
     },

@@ -34,10 +34,10 @@ export default function HomeScreen() {
   const answerMutation = useMutation({
     mutationFn: ({ id, responseType }: { id: number; responseType: "YES" | "NO" | "NEUTRAL" }) =>
       popApi.answerQuestion(token, id, responseType, "POST"),
-    onSuccess: (_, variables) => {
+    onSuccess: (result, variables) => {
       setQueue((current) => current.filter((question) => question.id !== variables.id));
       queryClient.invalidateQueries({ queryKey: ["question-feed"] });
-      if (variables.responseType !== "NEUTRAL") {
+      if (variables.responseType !== "NEUTRAL" && !result.queued) {
         router.push({
           pathname: "/question/[id]",
           params: { id: String(variables.id), mode: "stats" }

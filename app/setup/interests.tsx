@@ -18,6 +18,7 @@ export default function InterestSetupScreen() {
   const queryClient = useQueryClient();
   const token = useAuthStore((state) => state.requireToken());
   const refreshCurrentUser = useAuthStore((state) => state.refreshCurrentUser);
+  const setUserInterests = useAuthStore((state) => state.setUserInterests);
   const [selected, setSelected] = useState<PopInterest[]>([]);
 
   const interestsQuery = useQuery({
@@ -27,7 +28,14 @@ export default function InterestSetupScreen() {
 
   const saveMutation = useMutation({
     mutationFn: () => popApi.saveInterests(token, selected),
-    onSuccess: async () => {
+    onSuccess: async (result) => {
+      if (result.queued) {
+        setUserInterests(selected);
+        queryClient.setQueryData(["current-user"], useAuthStore.getState().user);
+        router.replace("/home");
+        return;
+      }
+
       await refreshCurrentUser();
       queryClient.invalidateQueries({ queryKey: ["current-user"] });
       router.replace("/home");

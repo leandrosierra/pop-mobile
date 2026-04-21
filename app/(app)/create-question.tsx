@@ -42,8 +42,8 @@ export default function CreateQuestionScreen() {
         geoTags: selectedLocations,
         interestTags: selectedInterests.map((interest) => interest.code)
       }),
-    onSuccess: () => {
-      Alert.alert(t("requestSuccess"), t("questionCreatedSuccessfully"), [
+    onSuccess: (result) => {
+      Alert.alert(t("requestSuccess"), result.queued ? t("offlineChangeSaved") : t("questionCreatedSuccessfully"), [
         { text: t("ok"), onPress: () => router.replace("/home") }
       ]);
     },

@@ -5,14 +5,17 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { isApiNetworkError } from "@/api/client";
 import { AuthBootstrap } from "@/components/AuthGate";
+import { OfflineManager } from "@/components/OfflineManager";
+import { OfflineStatusBadge } from "@/components/OfflineStatusBadge";
 import { useDocumentTitle } from "@/config/environment";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 30_000,
-      retry: 1
+      retry: (failureCount, error) => !isApiNetworkError(error) && failureCount < 1
     }
   }
 });
@@ -36,8 +39,10 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <AuthBootstrap />
+        <OfflineManager />
         <StatusBar style="dark" />
         <Stack screenOptions={{ headerShown: false }} />
+        <OfflineStatusBadge />
       </QueryClientProvider>
     </GestureHandlerRootView>
   );

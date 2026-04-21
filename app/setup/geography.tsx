@@ -19,6 +19,7 @@ export default function GeographySetupScreen() {
   const queryClient = useQueryClient();
   const token = useAuthStore((state) => state.requireToken());
   const refreshCurrentUser = useAuthStore((state) => state.refreshCurrentUser);
+  const setUserGeoChoices = useAuthStore((state) => state.setUserGeoChoices);
   const [searchText, setSearchText] = useState("");
   const [selected, setSelected] = useState<PopLocation[]>([]);
 
@@ -30,7 +31,16 @@ export default function GeographySetupScreen() {
 
   const saveMutation = useMutation({
     mutationFn: () => popApi.saveGeoLocations(token, selected),
-    onSuccess: async () => {
+    onSuccess: async (result) => {
+      if (result.queued) {
+        setUserGeoChoices(selected);
+        queryClient.setQueryData(["current-user"], useAuthStore.getState().user);
+        const user = useAuthStore.getState().user;
+        if (!user?.userInterest.length) router.replace("/setup/interests");
+        else router.replace("/home");
+        return;
+      }
+
       const user = await refreshCurrentUser();
       queryClient.invalidateQueries({ queryKey: ["current-user"] });
       if (!user?.userInterest.length) router.replace("/setup/interests");

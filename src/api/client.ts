@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { useOfflineStore } from "@/store/offlineStore";
 
 const configuredApiOrigin = process.env.EXPO_PUBLIC_POP_API_ORIGIN || "http://localhost:8080";
 export const apiOrigin =
@@ -20,6 +21,16 @@ export class ApiError extends Error {
   ) {
     super(message);
   }
+}
+
+export class ApiNetworkError extends Error {
+  constructor(message = "Connexion indisponible") {
+    super(message);
+  }
+}
+
+export function isApiNetworkError(error: unknown): error is ApiNetworkError {
+  return error instanceof ApiNetworkError;
 }
 
 type ApiRequestOptions<T> = RequestInit & {
@@ -49,16 +60,29 @@ const readErrorMessage = async (response: Response) => {
 
 export async function apiRequest<T>(path: string, options: ApiRequestOptions<T> = {}) {
   const { token, schema, query, headers, body, ...init } = options;
-  const response = await fetch(buildUrl(path, query), {
-    ...init,
-    headers: {
-      Accept: "application/json",
-      ...(body ? { "Content-Type": "application/json" } : {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...headers
-    },
-    body
-  });
+  let response: Response;
+  try {
+    response = await fetch(buildUrl(path, query), {
+      ...init,
+      headers: {
+        Accept: "application/json",
+        ...(body ? { "Content-Type": "application/json" } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...headers
+      },
+      body
+    });
+  } catch {
+    useOfflineStore.getState().setOnline(false);
+    throw new ApiNetworkError();
+  }
+
+  useOfflineStore.getState().setOnline(true);
+
+  if ([502, 503, 504].includes(response.status)) {
+    useOfflineStore.getState().setOnline(false);
+    throw new ApiNetworkError(await readErrorMessage(response));
+  }
 
   if (!response.ok) {
     throw new ApiError(await readErrorMessage(response), response.status);
@@ -73,4 +97,22 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions<T> 
 
 export async function legacyApiRequest<T>(path: string, options: ApiRequestOptions<T> = {}) {
   return apiRequest<T>(path, options);
+}
+
+export async function checkApiReachability() {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 3_000);
+  try {
+    await fetch(buildUrl(isLegacyApi ? "/user/current" : "/pop/user/current"), {
+      method: "GET",
+      cache: "no-store",
+      signal: controller.signal,
+      headers: { Accept: "application/json" }
+    });
+    return true;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timeout);
+  }
 }

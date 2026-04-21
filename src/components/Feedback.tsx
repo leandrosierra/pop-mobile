@@ -1,4 +1,6 @@
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { useOfflineStore } from "@/store/offlineStore";
 import { colors, fontFamilies, fontWeights, radii, shadows, spacing, typography } from "@/theme";
 
 export function LoadingState({ label }: { label: string }) {
@@ -21,9 +23,12 @@ export function EmptyState({ label }: { label: string }) {
 }
 
 export function ErrorState({ label }: { label: string }) {
+  const { t } = useTranslation();
+  const offline = useOfflineStore((state) => !state.online);
+
   return (
     <View style={styles.root}>
-      <Text style={[styles.title, styles.error]}>{label}</Text>
+      <Text style={[styles.title, !offline && styles.error]}>{offline ? t("offlineDataUnavailable") : label}</Text>
     </View>
   );
 }

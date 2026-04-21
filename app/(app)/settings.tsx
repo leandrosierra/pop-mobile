@@ -4,6 +4,7 @@ import { router } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { KeyRound, LogOut, Trash2 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
+import { isApiNetworkError } from "@/api/client";
 import { AppButton } from "@/components/AppButton";
 import { AppCard } from "@/components/AppCard";
 import { AppScreen } from "@/components/AppScreen";
@@ -13,6 +14,7 @@ import { FormField } from "@/components/FormField";
 import { Header } from "@/components/Header";
 import { popApi } from "@/api/pop";
 import { useAuthStore } from "@/store/authStore";
+import { useOfflineStore } from "@/store/offlineStore";
 import { colors, fontFamilies, fontWeights, spacing, typography } from "@/theme";
 
 export default function SettingsScreen() {
@@ -22,6 +24,10 @@ export default function SettingsScreen() {
   const signOut = useAuthStore((state) => state.signOut);
   const deleteAccount = useAuthStore((state) => state.deleteAccount);
   const refreshCurrentUser = useAuthStore((state) => state.refreshCurrentUser);
+  const cachedUser = useAuthStore((state) => state.user);
+  const removeUserGeoChoice = useAuthStore((state) => state.removeUserGeoChoice);
+  const removeUserInterestChoice = useAuthStore((state) => state.removeUserInterestChoice);
+  const online = useOfflineStore((state) => state.online);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -32,16 +38,30 @@ export default function SettingsScreen() {
 
   const removeGeoMutation = useMutation({
     mutationFn: (id: string) => {
-      const location = userQuery.data?.userChoiceGeo.find((item) => item.id === id);
+      const location = (userQuery.data ?? useAuthStore.getState().user)?.userChoiceGeo.find((item) => item.id === id);
       if (!location) throw new Error(t("dataAccessProblem"));
       return popApi.removeGeoLocation(token, location);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["current-user"] })
+    onSuccess: (result, id) => {
+      if (result.queued) {
+        removeUserGeoChoice(id);
+        queryClient.setQueryData(["current-user"], useAuthStore.getState().user);
+        return;
+      }
+      queryClient.invalidateQueries({ queryKey: ["current-user"] });
+    }
   });
 
   const removeInterestMutation = useMutation({
     mutationFn: (code: string) => popApi.removeInterest(token, code),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["current-user"] })
+    onSuccess: (result, code) => {
+      if (result.queued) {
+        removeUserInterestChoice(code);
+        queryClient.setQueryData(["current-user"], useAuthStore.getState().user);
+        return;
+      }
+      queryClient.invalidateQueries({ queryKey: ["current-user"] });
+    }
   });
 
   const passwordMutation = useMutation({
@@ -51,13 +71,18 @@ export default function SettingsScreen() {
       setConfirmPassword("");
       Alert.alert(t("requestSuccess"), t("passwordUpdatedSuccess"));
     },
-    onError: (err) => Alert.alert(t("cannotProcessRequest"), err instanceof Error ? err.message : t("dataAccessProblem"))
+    onError: (err) => {
+      const error = err as unknown;
+      if (isApiNetworkError(error)) return;
+      Alert.alert(t("cannotProcessRequest"), error instanceof Error ? error.message : t("dataAccessProblem"));
+    }
   });
 
-  if (userQuery.isLoading) return <LoadingState label={t("loadingUserProfile")} />;
-  if (userQuery.isError || !userQuery.data) return <ErrorState label={t("errorLoadingUserInfo")} />;
+  if (userQuery.isLoading && !cachedUser) return <LoadingState label={t("loadingUserProfile")} />;
+  if ((userQuery.isError || !userQuery.data) && !cachedUser) return <ErrorState label={t("errorLoadingUserInfo")} />;
 
-  const user = userQuery.data;
+  const user = userQuery.data ?? cachedUser;
+  if (!user) return <ErrorState label={t("errorLoadingUserInfo")} />;
   const canChangePassword = password.length > 0 && password === confirmPassword;
 
   return (
@@ -90,10 +115,11 @@ export default function SettingsScreen() {
         <FormField value={password} onChangeText={setPassword} placeholder={t("password")} secureTextEntry />
         <FormField value={confirmPassword} onChangeText={setConfirmPassword} placeholder={t("password")} secureTextEntry />
         {password && password !== confirmPassword ? <Text style={styles.error}>{t("passwordMismatching")}</Text> : null}
+        {!online ? <Text style={styles.helper}>{t("onlineOnlyAction")}</Text> : null}
         <AppButton
           label={t("resetPassword")}
           icon={<KeyRound color="#fff" size={18} />}
-          disabled={!canChangePassword}
+          disabled={!canChangePassword || !online}
           loading={passwordMutation.isPending}
           onPress={() => passwordMutation.mutate()}
         />
@@ -110,10 +136,17 @@ export default function SettingsScreen() {
           label={t("deleteAccount")}
           variant="danger"
           icon={<Trash2 color="#fff" size={18} />}
+          disabled={!online}
           onPress={() =>
             Alert.alert(t("deleteAccount"), t("deleteAccount"), [
               { text: t("cancel"), style: "cancel" },
-              { text: t("ok"), style: "destructive", onPress: () => deleteAccount().then(() => router.replace("/login")) }
+              {
+                text: t("ok"),
+                style: "destructive",
+                onPress: () => deleteAccount().then(() => router.replace("/login")).catch((err) => {
+                  if (!isApiNetworkError(err)) Alert.alert(t("cannotProcessRequest"), err instanceof Error ? err.message : t("dataAccessProblem"));
+                })
+              }
             ])
           }
         />
@@ -166,6 +199,11 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontFamily: fontFamilies.sans,
     fontWeight: fontWeights.semibold
+  },
+  helper: {
+    color: colors.muted,
+    fontFamily: fontFamilies.sans,
+    fontWeight: fontWeights.medium
   },
   actions: {
     gap: spacing.sm,

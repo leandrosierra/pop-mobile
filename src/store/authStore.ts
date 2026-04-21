@@ -1,7 +1,10 @@
 import { create } from "zustand";
 import { authApi } from "@/api/auth";
-import { PopUser } from "@/domain/schemas";
+import { isApiNetworkError } from "@/api/client";
+import { PopInterest, PopLocation, PopUser } from "@/domain/schemas";
+import { useOfflineStore } from "@/store/offlineStore";
 import { tokenStorage } from "@/utils/tokenStorage";
+import { userStorage } from "@/utils/userStorage";
 
 type AuthState = {
   hydrated: boolean;
@@ -14,6 +17,10 @@ type AuthState = {
   refreshCurrentUser: () => Promise<PopUser | null>;
   createEmailAccount: (name: string, email: string) => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
+  setUserGeoChoices: (locations: PopLocation[]) => void;
+  setUserInterests: (interests: PopInterest[]) => void;
+  removeUserGeoChoice: (id: string) => void;
+  removeUserInterestChoice: (code: string) => void;
   signOut: () => Promise<void>;
   deleteAccount: () => Promise<void>;
 };
@@ -30,7 +37,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (hydrationPromise) return hydrationPromise;
 
     hydrationPromise = (async () => {
-      const tokens = await tokenStorage.read();
+      const [tokens, cachedUser] = await Promise.all([tokenStorage.read(), userStorage.read()]);
       if (!tokens.accessToken) {
         set({ hydrated: true, user: null, accessToken: null, refreshToken: null });
         return;
@@ -38,9 +45,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       try {
         const user = await authApi.currentUser(tokens.accessToken);
+        await userStorage.write(user);
         set({ hydrated: true, user, accessToken: tokens.accessToken, refreshToken: tokens.refreshToken });
-      } catch {
+      } catch (error) {
+        if (isApiNetworkError(error) && cachedUser) {
+          set({ hydrated: true, user: cachedUser, accessToken: tokens.accessToken, refreshToken: tokens.refreshToken });
+          return;
+        }
         await tokenStorage.clear();
+        await userStorage.clear();
         set({ hydrated: true, user: null, accessToken: null, refreshToken: null });
       }
     })().finally(() => {
@@ -58,12 +71,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const tokens = await authApi.signInWithEmail(email, password);
     await tokenStorage.write(tokens.token, tokens.refreshToken);
     const user = await authApi.currentUser(tokens.token);
+    await userStorage.write(user);
     set({ user, accessToken: tokens.token, refreshToken: tokens.refreshToken, hydrated: true });
     return user;
   },
   async refreshCurrentUser() {
     const token = get().requireToken();
-    const user = await authApi.currentUser(token);
+    let user: PopUser;
+    try {
+      user = await authApi.currentUser(token);
+    } catch (error) {
+      if (isApiNetworkError(error) && get().user) return get().user;
+      throw error;
+    }
+    await userStorage.write(user);
     set({ user });
     return user;
   },
@@ -73,9 +94,50 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   forgotPassword(email) {
     return authApi.forgotPassword(email);
   },
+  setUserGeoChoices(locations) {
+    const user = get().user;
+    if (user) {
+      const nextUser = { ...user, userChoiceGeo: locations };
+      set({ user: nextUser });
+      void userStorage.write(nextUser);
+    }
+  },
+  setUserInterests(interests) {
+    const user = get().user;
+    if (user) {
+      const nextUser = {
+        ...user,
+        userInterest: interests.map((interest, index) => ({
+          code: interest.code,
+          label: interest.label,
+          priority: index + 1
+        }))
+      };
+      set({ user: nextUser });
+      void userStorage.write(nextUser);
+    }
+  },
+  removeUserGeoChoice(id) {
+    const user = get().user;
+    if (user) {
+      const nextUser = { ...user, userChoiceGeo: user.userChoiceGeo.filter((location) => location.id !== id) };
+      set({ user: nextUser });
+      void userStorage.write(nextUser);
+    }
+  },
+  removeUserInterestChoice(code) {
+    const user = get().user;
+    if (user) {
+      const nextUser = { ...user, userInterest: user.userInterest.filter((interest) => interest.code !== code) };
+      set({ user: nextUser });
+      void userStorage.write(nextUser);
+    }
+  },
   async signOut() {
     hydrationPromise = null;
+    await useOfflineStore.getState().clearQueue();
     await tokenStorage.clear();
+    await userStorage.clear();
     set({ user: null, accessToken: null, refreshToken: null, hydrated: true });
   },
   async deleteAccount() {

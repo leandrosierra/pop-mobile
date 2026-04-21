@@ -32,7 +32,10 @@ export default function QuestionScreen() {
 
   const answerMutation = useMutation({
     mutationFn: (responseType: "YES" | "NO" | "NEUTRAL") => popApi.answerQuestion(token, id, responseType, "PUT"),
-    onSuccess: () => router.replace({ pathname: "/question/[id]", params: { id: String(id), mode: "stats" } })
+    onSuccess: (result) => {
+      if (result.queued) router.replace("/home");
+      else router.replace({ pathname: "/question/[id]", params: { id: String(id), mode: "stats" } });
+    }
   });
 
   if (query.isLoading) return <LoadingState label={t("loadingData")} />;
