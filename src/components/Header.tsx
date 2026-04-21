@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { ChevronLeft, Plus, Settings } from "lucide-react-native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { pageTitle, useDocumentTitle } from "@/config/environment";
 import { colors, radii, spacing, typography } from "@/theme";
 
 type HeaderProps = {
@@ -11,8 +12,14 @@ type HeaderProps = {
   homeLink?: boolean;
 };
 
-export function Header({ title = "POP!", back = false, settings = true, create = true, homeLink = true }: HeaderProps) {
-  const titleNode = <Text style={styles.title} numberOfLines={1}>{title}</Text>;
+export function Header({ title = "POP", back = false, settings = true, create = true, homeLink = true }: HeaderProps) {
+  const displayTitle = pageTitle(title);
+  useDocumentTitle(title);
+  const titleNode = (
+    <Text style={styles.title} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.68}>
+      {displayTitle}
+    </Text>
+  );
   return (
     <View style={styles.root}>
       <View style={styles.slot}>

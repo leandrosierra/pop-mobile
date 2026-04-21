@@ -7,12 +7,14 @@ import { useTranslation } from "react-i18next";
 import { AppButton } from "@/components/AppButton";
 import { AppScreen } from "@/components/AppScreen";
 import { FormField } from "@/components/FormField";
+import { pageTitle, useDocumentTitle } from "@/config/environment";
 import { canShowProvider, signInWithSocialProvider, SocialProvider } from "@/services/socialAuth";
 import { useAuthStore } from "@/store/authStore";
 import { colors, radii, shadows, spacing, typography } from "@/theme";
 
 export default function LoginScreen() {
   const { t } = useTranslation();
+  useDocumentTitle("POP");
   const signInWithEmail = useAuthStore((state) => state.signInWithEmail);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,6 +44,7 @@ export default function LoginScreen() {
     <AppScreen scroll padded={false}>
       <View style={styles.hero}>
         <Image source={require("../../assets/images/Logo.png")} style={styles.logo} resizeMode="contain" />
+        <Text style={styles.environmentTitle}>{pageTitle("POP")}</Text>
         <Text style={styles.welcome}>{t("welcome")}</Text>
         <Text style={styles.subtitle}>Proposez la politique que vous souhaitez en votant et lançant vos référendums.</Text>
       </View>
@@ -119,6 +122,13 @@ const styles = StyleSheet.create({
     fontSize: 30,
     lineHeight: 36,
     fontWeight: "900"
+  },
+  environmentTitle: {
+    color: "#fff",
+    fontSize: typography.title,
+    lineHeight: 30,
+    fontWeight: "900",
+    marginBottom: spacing.xs
   },
   subtitle: {
     color: "#fff",
