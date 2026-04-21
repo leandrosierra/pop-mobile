@@ -1,45 +1,20 @@
-import { z } from "zod";
-import {
-  interestListResponseSchema,
-  PopInterest,
-  PopLocation,
-  popAnsweredQuestionSchema,
-  popInterestSchema,
-  popLocationSchema,
-  popQuestionDetailSchema,
-  popQuestionSchema
-} from "@/domain/schemas";
+import { PopInterest, PopLocation, popInterestSchema } from "@/domain/schemas";
 import { OfflineOperation, OfflineOperationInput, useOfflineStore } from "@/store/offlineStore";
-import { apiRequest, isApiNetworkError, isLegacyApi, legacyApiRequest } from "./client";
+import { apiRequest, isApiNetworkError } from "./client";
 import { authApi } from "./auth";
 import {
-  legacyAnswerId,
-  legacyInterests,
-  legacyLocations,
-  legacyPageContent,
-  legacyStatusId,
-  LegacyPage,
-  LegacyQuestion,
-  LegacyStat,
-  mapLegacyAnsweredQuestion,
-  mapLegacyQuestion,
-  mapLegacyQuestionDetail
-} from "./legacy";
-
-const questionListSchema = z.array(popQuestionSchema);
-const answeredQuestionListSchema = z.array(popAnsweredQuestionSchema);
-const adminQuestionMapSchema = z.record(z.string(), z.array(popQuestionSchema));
-
-const locationPayload = (location: PopLocation) => ({
-  code: location.id,
-  libelle: location.label,
-  type: location.type
-});
-
-const interestPayload = (interest: PopInterest) => ({
-  code: interest.code,
-  libelle: interest.label
-});
+  backendAnswerId,
+  backendInterests,
+  backendLocations,
+  backendPageContent,
+  backendStatusId,
+  BackendPage,
+  BackendQuestion,
+  BackendStat,
+  mapBackendAnsweredQuestion,
+  mapBackendQuestion,
+  mapBackendQuestionDetail
+} from "./backend";
 
 export type OfflineMutationResult = {
   queued: boolean;
@@ -51,6 +26,8 @@ type SaveQuestionInput = {
   geoTags: PopLocation[];
   interestTags: string[];
 };
+
+const completeOnline = () => Promise.resolve();
 
 const offlineMutation = async (operation: OfflineOperationInput, run: () => Promise<void>): Promise<OfflineMutationResult> => {
   if (!useOfflineStore.getState().online) {
@@ -70,145 +47,67 @@ const offlineMutation = async (operation: OfflineOperationInput, run: () => Prom
   }
 };
 
-const saveGeoLocationsOnline = (token: string, locations: PopLocation[]) => {
-  if (isLegacyApi) return Promise.resolve();
-
-  return apiRequest<void>("/pop/user/geochoices", {
-    method: "POST",
-    token,
-    body: JSON.stringify(locations.map(locationPayload))
-  });
-};
-
-const saveInterestsOnline = (token: string, interests: PopInterest[]) => {
-  if (isLegacyApi) return Promise.resolve();
-
-  return apiRequest<void>("/pop/user/interets", {
-    method: "POST",
-    token,
-    body: JSON.stringify(interests.map(interestPayload))
-  });
-};
-
-const removeGeoLocationOnline = (token: string, location: PopLocation) => {
-  if (isLegacyApi) return Promise.resolve();
-
-  return apiRequest<void>(`/pop/user/geochoices/${encodeURIComponent(location.id)}`, {
-    method: "DELETE",
-    token,
-    query: { geoType: location.type }
-  });
-};
-
-const removeInterestOnline = (token: string, code: string) => {
-  if (isLegacyApi) return Promise.resolve();
-
-  return apiRequest<void>(`/pop/user/interets/${encodeURIComponent(code)}`, {
-    method: "DELETE",
-    token
-  });
-};
-
-const saveQuestionOnline = (token: string, question: SaveQuestionInput) => {
-  if (isLegacyApi) {
-    return legacyApiRequest<void>("/question/create", {
-      method: "POST",
-      token,
-      body: JSON.stringify({
-        statut: { idStatut: legacyStatusId.DRAFT },
-        code: `Q-${Date.now()}`,
-        libelle: question.questionTitle,
-        description: question.questionDesc,
-        forwards: 0
-      })
-    });
-  }
-
-  return apiRequest<void>("/pop/questions", {
+const saveQuestionOnline = (token: string, question: SaveQuestionInput) =>
+  apiRequest<void>("/question/create", {
     method: "POST",
     token,
     body: JSON.stringify({
-      ...question,
-      geoTags: question.geoTags.map(locationPayload)
+      statut: { idStatut: backendStatusId.DRAFT },
+      code: `Q-${Date.now()}`,
+      libelle: question.questionTitle,
+      description: question.questionDesc,
+      forwards: 0
     })
   });
-};
 
 const answerQuestionOnline = (
   token: string,
   id: number,
   responseType: "YES" | "NO" | "NEUTRAL",
-  method: "POST" | "PUT"
-) => {
-  if (isLegacyApi) {
-    return legacyApiRequest<void>("/stat/create", {
-      method: "POST",
-      token,
-      body: JSON.stringify({
-        question: { id },
-        reponse: { id: legacyAnswerId[responseType] }
-      })
-    });
-  }
-
-  return apiRequest<void>(`/pop/questions/${id}/answer`, {
-    method,
+  _method: "POST" | "PUT"
+) =>
+  apiRequest<void>("/stat/create", {
+    method: "POST",
     token,
-    body: JSON.stringify({ responseType })
+    body: JSON.stringify({
+      question: { id },
+      reponse: { id: backendAnswerId[responseType] }
+    })
   });
-};
 
-const changePasswordOnline = (token: string, password: string) => {
-  if (isLegacyApi) {
-    return legacyApiRequest<void>("/user/current/password", {
-      method: "PUT",
-      token,
-      body: JSON.stringify({ password })
-    });
-  }
-
-  return apiRequest<void>("/pop/user/password", {
+const changePasswordOnline = (token: string, password: string) =>
+  apiRequest<void>("/user/current/password", {
     method: "PUT",
     token,
     body: JSON.stringify({ password })
   });
-};
 
-const setQuestionStatusOnline = (token: string, id: number, status: "ACTIVE" | "DRAFT" | "IDLE") => {
-  if (isLegacyApi) {
-    return legacyApiRequest<LegacyQuestion>(`/question/${id}`, { token }).then((question) =>
-      legacyApiRequest<void>("/question/update", {
-        method: "PUT",
-        token,
-        body: JSON.stringify({
-          id: question.id,
-          libelle: question.libelle,
-          description: question.description,
-          forwards: question.forwards ?? 0,
-          image: null,
-          statut: { idStatut: legacyStatusId[status] }
-        })
+const setQuestionStatusOnline = (token: string, id: number, status: "ACTIVE" | "DRAFT" | "IDLE") =>
+  apiRequest<BackendQuestion>(`/question/${id}`, { token }).then((question) =>
+    apiRequest<void>("/question/update", {
+      method: "PUT",
+      token,
+      body: JSON.stringify({
+        id: question.id,
+        libelle: question.libelle,
+        description: question.description,
+        forwards: question.forwards ?? 0,
+        image: null,
+        statut: { idStatut: backendStatusId[status] }
       })
-    );
-  }
-
-  return apiRequest<void>(`/pop/questions/${id}/status`, {
-    method: "PUT",
-    token,
-    body: JSON.stringify({ status })
-  });
-};
+    })
+  );
 
 export function replayOfflineOperation(operation: OfflineOperation) {
   switch (operation.type) {
     case "SAVE_GEO_LOCATIONS":
-      return saveGeoLocationsOnline(operation.token, operation.payload.locations);
+      return completeOnline();
     case "SAVE_INTERESTS":
-      return saveInterestsOnline(operation.token, operation.payload.interests);
+      return completeOnline();
     case "REMOVE_GEO_LOCATION":
-      return removeGeoLocationOnline(operation.token, operation.payload.location);
+      return completeOnline();
     case "REMOVE_INTEREST":
-      return removeInterestOnline(operation.token, operation.payload.code);
+      return completeOnline();
     case "SAVE_QUESTION":
       return saveQuestionOnline(operation.token, operation.payload.question);
     case "ANSWER_QUESTION":
@@ -221,62 +120,37 @@ export function replayOfflineOperation(operation: OfflineOperation) {
 }
 
 export const popApi = {
-  async getInterests() {
-    if (isLegacyApi) return legacyInterests;
-
-    const data = await apiRequest("/pop/referential/interests", {
-      method: "GET",
-      schema: interestListResponseSchema
-    });
-    return data.interestList;
+  getInterests() {
+    return Promise.resolve(backendInterests);
   },
-  async searchLocations(searchText: string, pageNumber = 0) {
-    if (isLegacyApi) {
-      const normalizedSearch = searchText.trim().toLocaleLowerCase();
-      return legacyLocations.filter((location) => location.label.toLocaleLowerCase().includes(normalizedSearch));
-    }
-
-    const data = await apiRequest<{
-      countries?: unknown[];
-      regions?: unknown[];
-      departments?: unknown[];
-      cities?: unknown[];
-      circonscriptions?: unknown[];
-    }>("/pop/referential/geolocations", {
-      method: "GET",
-      query: { searchText, pageNumber }
-    });
-
-    return [
-      ...(data.countries ?? []).map((item) => popLocationSchema.parse({ ...(item as object), type: "COUNTRY" })),
-      ...(data.regions ?? []).map((item) => popLocationSchema.parse({ ...(item as object), type: "REGION" })),
-      ...(data.departments ?? []).map((item) => popLocationSchema.parse({ ...(item as object), type: "DEPARTMENT" })),
-      ...(data.cities ?? []).map((item) => popLocationSchema.parse({ ...(item as object), type: "CITY" })),
-      ...(data.circonscriptions ?? []).map((item) => popLocationSchema.parse({ ...(item as object), type: "CIRCONSCRIPTION" }))
-    ];
+  searchLocations(searchText: string, _pageNumber = 0) {
+    const normalizedSearch = searchText.trim().toLocaleLowerCase();
+    return Promise.resolve(
+      backendLocations.filter((location) => location.label.toLocaleLowerCase().includes(normalizedSearch))
+    );
   },
   saveGeoLocations(token: string, locations: PopLocation[]) {
     return offlineMutation(
       { type: "SAVE_GEO_LOCATIONS", token, payload: { locations } },
-      () => saveGeoLocationsOnline(token, locations)
+      completeOnline
     );
   },
   saveInterests(token: string, interests: PopInterest[]) {
     return offlineMutation(
       { type: "SAVE_INTERESTS", token, payload: { interests } },
-      () => saveInterestsOnline(token, interests)
+      completeOnline
     );
   },
   removeGeoLocation(token: string, location: PopLocation) {
     return offlineMutation(
       { type: "REMOVE_GEO_LOCATION", token, payload: { location } },
-      () => removeGeoLocationOnline(token, location)
+      completeOnline
     );
   },
   removeInterest(token: string, code: string) {
     return offlineMutation(
       { type: "REMOVE_INTEREST", token, payload: { code } },
-      () => removeInterestOnline(token, code)
+      completeOnline
     );
   },
   saveQuestion(token: string, question: SaveQuestionInput) {
@@ -286,31 +160,15 @@ export const popApi = {
     );
   },
   listQuestionFeed(token: string) {
-    if (isLegacyApi) {
-      return legacyApiRequest<LegacyPage<LegacyQuestion>>("/question/feed", { token, query: { page: 0, size: 10 } })
-        .then(legacyPageContent)
-        .then((questions) => questions.map(mapLegacyQuestion));
-    }
-
-    return apiRequest("/pop/user/question-feed", {
-      method: "GET",
-      token,
-      schema: questionListSchema
-    });
+    return apiRequest<BackendPage<BackendQuestion>>("/question/feed", { token, query: { page: 0, size: 10 } })
+      .then(backendPageContent)
+      .then((questions) => questions.map(mapBackendQuestion));
   },
   getQuestion(token: string, id: number) {
-    if (isLegacyApi) {
-      return Promise.all([
-        legacyApiRequest<LegacyQuestion>(`/question/${id}`, { token }),
-        legacyApiRequest<LegacyPage<LegacyStat>>(`/stat/question/${id}`, { token, query: { page: 0, size: 10 } })
-      ]).then(([question, stats]) => mapLegacyQuestionDetail(question, legacyPageContent(stats)));
-    }
-
-    return apiRequest(`/pop/questions/${id}`, {
-      method: "GET",
-      token,
-      schema: popQuestionDetailSchema
-    });
+    return Promise.all([
+      apiRequest<BackendQuestion>(`/question/${id}`, { token }),
+      apiRequest<BackendPage<BackendStat>>(`/stat/question/${id}`, { token, query: { page: 0, size: 10 } })
+    ]).then(([question, stats]) => mapBackendQuestionDetail(question, backendPageContent(stats)));
   },
   answerQuestion(token: string, id: number, responseType: "YES" | "NO" | "NEUTRAL", method: "POST" | "PUT") {
     return offlineMutation(
@@ -319,50 +177,26 @@ export const popApi = {
     );
   },
   userAuthoredQuestions(token: string) {
-    if (isLegacyApi) {
-      return legacyApiRequest<LegacyPage<LegacyQuestion>>("/question/user/current", { token, query: { page: 0, size: 10 } })
-        .then(legacyPageContent)
-        .then((questions) => questions.map(mapLegacyQuestion));
-    }
-
-    return apiRequest("/pop/user/questions", {
-      method: "GET",
-      token,
-      schema: questionListSchema
-    });
+    return apiRequest<BackendPage<BackendQuestion>>("/question/user/current", { token, query: { page: 0, size: 10 } })
+      .then(backendPageContent)
+      .then((questions) => questions.map(mapBackendQuestion));
   },
   userAnsweredQuestions(token: string) {
-    if (isLegacyApi) {
-      return legacyApiRequest<LegacyPage<LegacyStat>>("/stat/user/current", { token, query: { page: 0, size: 10 } })
-        .then(legacyPageContent)
-        .then((stats) => stats.map(mapLegacyAnsweredQuestion));
-    }
-
-    return apiRequest("/pop/user/answers", {
-      method: "GET",
-      token,
-      schema: answeredQuestionListSchema
-    });
+    return apiRequest<BackendPage<BackendStat>>("/stat/user/current", { token, query: { page: 0, size: 10 } })
+      .then(backendPageContent)
+      .then((stats) => stats.map(mapBackendAnsweredQuestion));
   },
   changePassword(token: string, password: string) {
     return changePasswordOnline(token, password);
   },
   adminQuestions(token: string) {
-    if (isLegacyApi) {
-      return legacyApiRequest<LegacyPage<LegacyQuestion>>("/question/all", { token, query: { page: 0, size: 10 } })
-        .then(legacyPageContent)
-        .then((questions) => ({
-          DRAFT: questions.filter((question) => question.statut?.code === "BROUILLON").map(mapLegacyQuestion),
-          ACTIVE: questions.filter((question) => question.statut?.code === "ACTIF").map(mapLegacyQuestion),
-          IDLE: questions.filter((question) => question.statut?.code === "INACTIF").map(mapLegacyQuestion)
-        }));
-    }
-
-    return apiRequest("/pop/questions", {
-      method: "GET",
-      token,
-      schema: adminQuestionMapSchema
-    });
+    return apiRequest<BackendPage<BackendQuestion>>("/question/all", { token, query: { page: 0, size: 10 } })
+      .then(backendPageContent)
+      .then((questions) => ({
+        DRAFT: questions.filter((question) => question.statut?.code === "BROUILLON").map(mapBackendQuestion),
+        ACTIVE: questions.filter((question) => question.statut?.code === "ACTIF").map(mapBackendQuestion),
+        IDLE: questions.filter((question) => question.statut?.code === "INACTIF").map(mapBackendQuestion)
+      }));
   },
   setQuestionStatus(token: string, id: number, status: "ACTIVE" | "DRAFT" | "IDLE") {
     return offlineMutation(

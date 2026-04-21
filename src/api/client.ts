@@ -6,13 +6,6 @@ export const apiOrigin =
   configuredApiOrigin === "same-origin" && typeof window !== "undefined"
     ? window.location.origin
     : configuredApiOrigin;
-const apiMode = process.env.EXPO_PUBLIC_POP_API_MODE;
-
-export const isLegacyApi = (() => {
-  const host = new URL(apiOrigin).hostname;
-  if (apiMode) return apiMode === "legacy";
-  return host === "localhost" || host === "127.0.0.1";
-})();
 
 export class ApiError extends Error {
   constructor(
@@ -94,10 +87,6 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions<T> 
   const text = await response.text();
   const data = text ? JSON.parse(text) : undefined;
   return schema ? schema.parse(data) : (data as T);
-}
-
-export async function legacyApiRequest<T>(path: string, options: ApiRequestOptions<T> = {}) {
-  return apiRequest<T>(path, options);
 }
 
 export async function checkApiReachability() {

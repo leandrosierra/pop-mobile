@@ -1,11 +1,11 @@
 import { PopAnsweredQuestion, PopQuestion, PopQuestionDetail, PopUser, QuestionStats } from "@/domain/schemas";
 import { normalizeTimestamp } from "@/utils/time";
 
-type LegacyRole = {
+type BackendRole = {
   code?: string;
 };
 
-type LegacyInterest = {
+type BackendInterest = {
   interet?: {
     code?: string;
     libelle?: string;
@@ -13,7 +13,7 @@ type LegacyInterest = {
   priorite?: number;
 };
 
-type LegacyGeoChoice = {
+type BackendGeoChoice = {
   pays?: {
     code?: string;
     libelle?: string;
@@ -28,28 +28,28 @@ type LegacyGeoChoice = {
   };
 };
 
-type LegacyLanguage = {
+type BackendLanguage = {
   langue?: {
     code?: string;
     libelle?: string;
   };
 };
 
-export type LegacyUser = {
+export type BackendUser = {
   id: number;
   login: string;
   nom?: string;
   prenom?: string;
   email?: string;
-  role?: LegacyRole;
-  interets?: LegacyInterest[];
-  choixGeo?: LegacyGeoChoice[];
+  role?: BackendRole;
+  interets?: BackendInterest[];
+  choixGeo?: BackendGeoChoice[];
   parametres?: {
-    langues?: LegacyLanguage[];
+    langues?: BackendLanguage[];
   };
 };
 
-export type LegacyQuestion = {
+export type BackendQuestion = {
   id: number;
   code?: string;
   libelle?: string;
@@ -58,33 +58,33 @@ export type LegacyQuestion = {
   dateCreation?: string | number;
   dateModification?: string | number;
   dateExpiration?: string | number;
-  user?: LegacyUser;
+  user?: BackendUser;
   statut?: {
     idStatut?: number;
     code?: string;
     libelle?: string;
   };
-  choixGeo?: LegacyGeoChoice[];
+  choixGeo?: BackendGeoChoice[];
 };
 
-export type LegacyStat = {
+export type BackendStat = {
   idStat: number;
   dateCreation?: string | number;
   dateModification?: string | number;
-  question?: LegacyQuestion;
+  question?: BackendQuestion;
   reponse?: {
     id?: number;
     code?: string;
     libelle?: string;
   };
-  user?: LegacyUser;
+  user?: BackendUser;
 };
 
-export type LegacyAnsweredQuestion = PopAnsweredQuestion & {
+export type BackendAnsweredQuestion = PopAnsweredQuestion & {
   summaryKey: string;
 };
 
-export type LegacyPage<T> = {
+export type BackendPage<T> = {
   content: T[];
   totalElements: number;
   totalPages: number;
@@ -92,7 +92,7 @@ export type LegacyPage<T> = {
   size: number;
 };
 
-export const legacyInterests = [
+export const backendInterests = [
   { code: "Ecologie", label: "Ecologie" },
   { code: "Education", label: "Education" },
   { code: "Sante", label: "Sante" },
@@ -105,14 +105,14 @@ export const legacyInterests = [
   { code: "Vie politique", label: "Vie politique" }
 ];
 
-export const legacyLocations = [
+export const backendLocations = [
   { id: "75056", code: "75056", label: "Paris", type: "CITY" as const },
   { id: "69123", code: "69123", label: "Lyon", type: "CITY" as const },
   { id: "13055", code: "13055", label: "Marseille", type: "CITY" as const },
   { id: "44109", code: "44109", label: "Nantes", type: "CITY" as const }
 ];
 
-export function legacyPageContent<T>(page: LegacyPage<T>) {
+export function backendPageContent<T>(page: BackendPage<T>) {
   return page.content;
 }
 
@@ -122,13 +122,13 @@ const statusMap: Record<string, PopQuestion["status"]> = {
   INACTIF: "IDLE"
 };
 
-export const legacyStatusId: Record<"ACTIVE" | "DRAFT" | "IDLE", number> = {
+export const backendStatusId: Record<"ACTIVE" | "DRAFT" | "IDLE", number> = {
   DRAFT: 1,
   ACTIVE: 2,
   IDLE: 3
 };
 
-export const legacyAnswerId: Record<"YES" | "NO" | "NEUTRAL", number> = {
+export const backendAnswerId: Record<"YES" | "NO" | "NEUTRAL", number> = {
   YES: 1,
   NO: 2,
   NEUTRAL: 3
@@ -140,7 +140,7 @@ const answerCodeMap: Record<string, keyof QuestionStats> = {
   NEUTRE: "neutral"
 };
 
-export function mapLegacyUser(user: LegacyUser): PopUser {
+export function mapBackendUser(user: BackendUser): PopUser {
   return {
     uid: String(user.id),
     name: [user.prenom, user.nom].filter(Boolean).join(" ") || user.login,
@@ -160,7 +160,7 @@ export function mapLegacyUser(user: LegacyUser): PopUser {
   };
 }
 
-export function mapLegacyQuestion(question: LegacyQuestion): PopQuestion {
+export function mapBackendQuestion(question: BackendQuestion): PopQuestion {
   return {
     id: question.id,
     questionTitle: question.libelle || question.code || "",
@@ -172,9 +172,9 @@ export function mapLegacyQuestion(question: LegacyQuestion): PopQuestion {
   };
 }
 
-export function mapLegacyQuestionDetail(question: LegacyQuestion, stats: LegacyStat[]): PopQuestionDetail {
+export function mapBackendQuestionDetail(question: BackendQuestion, stats: BackendStat[]): PopQuestionDetail {
   return {
-    ...mapLegacyQuestion(question),
+    ...mapBackendQuestion(question),
     geoTags: (question.choixGeo ?? []).map((choice) => ({
       id: choice.ville?.code || choice.dept?.code || choice.pays?.code || "",
       label: choice.ville?.libelle || choice.dept?.libelle || choice.pays?.libelle || "",
@@ -185,9 +185,9 @@ export function mapLegacyQuestionDetail(question: LegacyQuestion, stats: LegacyS
   };
 }
 
-export function mapLegacyAnsweredQuestion(stat: LegacyStat): LegacyAnsweredQuestion {
+export function mapBackendAnsweredQuestion(stat: BackendStat): BackendAnsweredQuestion {
   return {
-    ...mapLegacyQuestion(stat.question || { id: 0 }),
+    ...mapBackendQuestion(stat.question || { id: 0 }),
     summaryKey: `answered-${stat.idStat}`,
     response: stat.reponse?.libelle || stat.reponse?.code || "",
     answeredAt: normalizeTimestamp(stat.dateCreation || stat.dateModification),
@@ -195,7 +195,7 @@ export function mapLegacyAnsweredQuestion(stat: LegacyStat): LegacyAnsweredQuest
   };
 }
 
-export function statsForQuestion(questionId: number, stats: LegacyStat[]): QuestionStats {
+export function statsForQuestion(questionId: number, stats: BackendStat[]): QuestionStats {
   return stats.reduce(
     (acc, stat) => {
       if (stat.question?.id !== questionId) return acc;

@@ -1,115 +1,57 @@
-import {
-  emailLoginResponseSchema,
-  popUserSchema,
-  refreshTokenResponseSchema
-} from "@/domain/schemas";
 import { languageResponseSchema } from "@/domain/languageSchemas";
 import { SupportedLanguageCode, toApiLanguageCode } from "@/localization/languages";
-import { apiRequest, isLegacyApi, legacyApiRequest } from "./client";
-import { LegacyUser, mapLegacyUser } from "./legacy";
+import { apiRequest } from "./client";
+import { BackendUser, mapBackendUser } from "./backend";
 
-type LegacyLoginResponse = {
+type LoginResponse = {
   token: string;
   refreshToken: string;
-  user: LegacyUser;
+  user: BackendUser;
 };
 
 export const authApi = {
   async signInWithEmail(email: string, password: string) {
-    if (isLegacyApi) {
-      const response = await legacyApiRequest<LegacyLoginResponse>("/user/login", {
-        method: "POST",
-        body: JSON.stringify({ login: email, password })
-      });
-      return {
-        token: response.token,
-        refreshToken: response.refreshToken
-      };
-    }
-
-    return apiRequest("/pop/user/email-login", {
+    const response = await apiRequest<LoginResponse>("/user/login", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
-      schema: emailLoginResponseSchema
+      body: JSON.stringify({ login: email, password })
     });
+    return {
+      token: response.token,
+      refreshToken: response.refreshToken
+    };
   },
   refreshToken(refreshToken: string) {
-    if (isLegacyApi) {
-      return Promise.resolve({ token: refreshToken, refreshToken });
-    }
-
-    return apiRequest("/pop/user/refresh-token", {
-      method: "POST",
-      body: JSON.stringify({ refreshToken }),
-      schema: refreshTokenResponseSchema
-    });
+    return Promise.resolve({ token: refreshToken, refreshToken });
   },
   async currentUser(token: string) {
-    if (isLegacyApi) {
-      return mapLegacyUser(await legacyApiRequest<LegacyUser>("/user/current", { token }));
-    }
-
-    return apiRequest("/pop/user/current", {
-      method: "GET",
-      token,
-      schema: popUserSchema
-    });
+    return mapBackendUser(await apiRequest<BackendUser>("/user/current", { token }));
   },
   createEmailAccount(name: string, email: string) {
-    if (isLegacyApi) {
-      return legacyApiRequest<void>("/user/create", {
-        method: "POST",
-        body: JSON.stringify({
-          login: email,
-          nom: name,
-          prenom: "",
-          email,
-          password: "user",
-          actif: true,
-          role: { idRole: 2 }
-        })
-      });
-    }
-
-    return apiRequest<void>("/pop/user/email-signup", {
+    return apiRequest<void>("/user/create", {
       method: "POST",
-      body: JSON.stringify({ emailId: email, nickname: name, languageCode: "FR" })
+      body: JSON.stringify({
+        login: email,
+        nom: name,
+        prenom: "",
+        email,
+        password: "user",
+        actif: true,
+        role: { idRole: 2 }
+      })
     });
   },
-  forgotPassword(email: string) {
-    if (isLegacyApi) return Promise.resolve();
-
-    return apiRequest<void>("/pop/user/email-forgot-password", {
-      method: "POST",
-      body: JSON.stringify({ mailId: email })
-    });
+  forgotPassword(_email: string) {
+    return Promise.resolve();
   },
   updateLanguage(token: string, language: SupportedLanguageCode) {
-    const code = toApiLanguageCode(language);
-    if (isLegacyApi) {
-      return legacyApiRequest("/user/current/language", {
-        method: "PUT",
-        token,
-        body: JSON.stringify({ code }),
-        schema: languageResponseSchema
-      });
-    }
-
-    return apiRequest("/pop/user/language", {
+    return apiRequest("/user/current/language", {
       method: "PUT",
       token,
-      body: JSON.stringify({ code }),
+      body: JSON.stringify({ code: toApiLanguageCode(language) }),
       schema: languageResponseSchema
     });
   },
   deleteAccount(token: string) {
-    if (isLegacyApi) {
-      return legacyApiRequest<void>("/user/current", { method: "DELETE", token });
-    }
-
-    return apiRequest<void>("/pop/user/current", {
-      method: "DELETE",
-      token
-    });
+    return apiRequest<void>("/user/current", { method: "DELETE", token });
   }
 };
