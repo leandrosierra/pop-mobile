@@ -9,7 +9,18 @@ import {
   popQuestionDetailSchema,
   popQuestionSchema
 } from "@/domain/schemas";
-import { apiRequest } from "./client";
+import { apiRequest, isLegacyApi, legacyApiRequest, legacyUserIdFromToken } from "./client";
+import {
+  legacyAnswerId,
+  legacyInterests,
+  legacyLocations,
+  legacyStatusId,
+  LegacyQuestion,
+  LegacyStat,
+  mapLegacyAnsweredQuestion,
+  mapLegacyQuestion,
+  mapLegacyQuestionDetail
+} from "./legacy";
 
 const questionListSchema = z.array(popQuestionSchema);
 const answeredQuestionListSchema = z.array(popAnsweredQuestionSchema);
@@ -28,6 +39,8 @@ const interestPayload = (interest: PopInterest) => ({
 
 export const popApi = {
   async getInterests() {
+    if (isLegacyApi) return legacyInterests;
+
     const data = await apiRequest("/pop/referential/interests", {
       method: "GET",
       schema: interestListResponseSchema
@@ -35,6 +48,11 @@ export const popApi = {
     return data.interestList;
   },
   async searchLocations(searchText: string, pageNumber = 0) {
+    if (isLegacyApi) {
+      const normalizedSearch = searchText.trim().toLocaleLowerCase();
+      return legacyLocations.filter((location) => location.label.toLocaleLowerCase().includes(normalizedSearch));
+    }
+
     const data = await apiRequest<{
       countries?: unknown[];
       regions?: unknown[];
@@ -55,6 +73,8 @@ export const popApi = {
     ];
   },
   saveGeoLocations(token: string, locations: PopLocation[]) {
+    if (isLegacyApi) return Promise.resolve();
+
     return apiRequest<void>("/pop/user/geochoices", {
       method: "POST",
       token,
@@ -62,6 +82,8 @@ export const popApi = {
     });
   },
   saveInterests(token: string, interests: PopInterest[]) {
+    if (isLegacyApi) return Promise.resolve();
+
     return apiRequest<void>("/pop/user/interets", {
       method: "POST",
       token,
@@ -69,6 +91,8 @@ export const popApi = {
     });
   },
   removeGeoLocation(token: string, location: PopLocation) {
+    if (isLegacyApi) return Promise.resolve();
+
     return apiRequest<void>(`/pop/user/geochoices/${encodeURIComponent(location.id)}`, {
       method: "DELETE",
       token,
@@ -76,6 +100,8 @@ export const popApi = {
     });
   },
   removeInterest(token: string, code: string) {
+    if (isLegacyApi) return Promise.resolve();
+
     return apiRequest<void>(`/pop/user/interets/${encodeURIComponent(code)}`, {
       method: "DELETE",
       token
@@ -90,6 +116,20 @@ export const popApi = {
       interestTags: string[];
     }
   ) {
+    if (isLegacyApi) {
+      return legacyApiRequest<void>("/question/create", {
+        method: "POST",
+        body: JSON.stringify({
+          user: { id: legacyUserIdFromToken(token) },
+          statut: { idStatut: legacyStatusId.DRAFT },
+          code: `Q-${Date.now()}`,
+          libelle: question.questionTitle,
+          description: question.questionDesc,
+          forwards: 0
+        })
+      });
+    }
+
     return apiRequest<void>("/pop/questions", {
       method: "POST",
       token,
@@ -100,6 +140,12 @@ export const popApi = {
     });
   },
   listQuestionFeed(token: string) {
+    if (isLegacyApi) {
+      return legacyApiRequest<LegacyQuestion[]>("/question/all").then((questions) =>
+        questions.filter((question) => question.statut?.code === "ACTIF").map(mapLegacyQuestion)
+      );
+    }
+
     return apiRequest("/pop/user/question-feed", {
       method: "GET",
       token,
@@ -107,6 +153,13 @@ export const popApi = {
     });
   },
   getQuestion(token: string, id: number) {
+    if (isLegacyApi) {
+      return Promise.all([
+        legacyApiRequest<LegacyQuestion>(`/question/${id}`),
+        legacyApiRequest<LegacyStat[]>("/stat/all")
+      ]).then(([question, stats]) => mapLegacyQuestionDetail(question, stats));
+    }
+
     return apiRequest(`/pop/questions/${id}`, {
       method: "GET",
       token,
@@ -114,6 +167,17 @@ export const popApi = {
     });
   },
   answerQuestion(token: string, id: number, responseType: "YES" | "NO" | "NEUTRAL", method: "POST" | "PUT") {
+    if (isLegacyApi) {
+      return legacyApiRequest<void>("/stat/create", {
+        method: "POST",
+        body: JSON.stringify({
+          question: { id },
+          reponse: { id: legacyAnswerId[responseType] },
+          user: { id: legacyUserIdFromToken(token) }
+        })
+      });
+    }
+
     return apiRequest<void>(`/pop/questions/${id}/answer`, {
       method,
       token,
@@ -121,6 +185,12 @@ export const popApi = {
     });
   },
   userAuthoredQuestions(token: string) {
+    if (isLegacyApi) {
+      return legacyApiRequest<LegacyQuestion[]>(`/question/user/${legacyUserIdFromToken(token)}`, {
+        method: "POST"
+      }).then((questions) => questions.map(mapLegacyQuestion));
+    }
+
     return apiRequest("/pop/user/questions", {
       method: "GET",
       token,
@@ -128,6 +198,12 @@ export const popApi = {
     });
   },
   userAnsweredQuestions(token: string) {
+    if (isLegacyApi) {
+      return legacyApiRequest<LegacyStat[]>("/stat/all").then((stats) =>
+        stats.filter((stat) => stat.user?.id === legacyUserIdFromToken(token)).map(mapLegacyAnsweredQuestion)
+      );
+    }
+
     return apiRequest("/pop/user/answers", {
       method: "GET",
       token,
@@ -135,6 +211,8 @@ export const popApi = {
     });
   },
   changePassword(token: string, password: string) {
+    if (isLegacyApi) return Promise.resolve();
+
     return apiRequest<void>("/pop/user/password", {
       method: "PUT",
       token,
@@ -142,6 +220,14 @@ export const popApi = {
     });
   },
   adminQuestions(token: string) {
+    if (isLegacyApi) {
+      return legacyApiRequest<LegacyQuestion[]>("/question/all").then((questions) => ({
+        DRAFT: questions.filter((question) => question.statut?.code === "BROUILLON").map(mapLegacyQuestion),
+        ACTIVE: questions.filter((question) => question.statut?.code === "ACTIF").map(mapLegacyQuestion),
+        IDLE: questions.filter((question) => question.statut?.code === "INACTIF").map(mapLegacyQuestion)
+      }));
+    }
+
     return apiRequest("/pop/questions", {
       method: "GET",
       token,
@@ -149,6 +235,22 @@ export const popApi = {
     });
   },
   setQuestionStatus(token: string, id: number, status: "ACTIVE" | "DRAFT" | "IDLE") {
+    if (isLegacyApi) {
+      return legacyApiRequest<LegacyQuestion>(`/question/${id}`).then((question) =>
+        legacyApiRequest<void>("/question/update", {
+          method: "PUT",
+          body: JSON.stringify({
+            id: question.id,
+            libelle: question.libelle,
+            description: question.description,
+            forwards: question.forwards ?? 0,
+            image: null,
+            statut: { idStatut: legacyStatusId[status] }
+          })
+        })
+      );
+    }
+
     return apiRequest<void>(`/pop/questions/${id}/status`, {
       method: "PUT",
       token,

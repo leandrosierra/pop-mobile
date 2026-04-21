@@ -3,10 +3,22 @@ import {
   popUserSchema,
   refreshTokenResponseSchema
 } from "@/domain/schemas";
-import { apiRequest } from "./client";
+import { apiRequest, isLegacyApi, legacyApiRequest, legacyToken, legacyUserIdFromToken } from "./client";
+import { LegacyUser, mapLegacyUser } from "./legacy";
 
 export const authApi = {
-  signInWithEmail(email: string, password: string) {
+  async signInWithEmail(email: string, password: string) {
+    if (isLegacyApi) {
+      const user = await legacyApiRequest<LegacyUser>("/user/login", {
+        method: "POST",
+        body: JSON.stringify({ login: email, password })
+      });
+      return {
+        token: legacyToken(user.id),
+        refreshToken: legacyToken(user.id)
+      };
+    }
+
     return apiRequest("/pop/user/email-login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
@@ -20,7 +32,11 @@ export const authApi = {
       schema: refreshTokenResponseSchema
     });
   },
-  currentUser(token: string) {
+  async currentUser(token: string) {
+    if (isLegacyApi) {
+      return mapLegacyUser(await legacyApiRequest<LegacyUser>(`/user/${legacyUserIdFromToken(token)}`));
+    }
+
     return apiRequest("/pop/user/current", {
       method: "GET",
       token,

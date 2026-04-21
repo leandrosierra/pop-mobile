@@ -1,6 +1,39 @@
 import { z } from "zod";
 
-const apiOrigin = process.env.EXPO_PUBLIC_POP_API_ORIGIN || "https://pop-litic.com";
+export const apiOrigin = process.env.EXPO_PUBLIC_POP_API_ORIGIN || "https://pop-litic.com";
+const basicAuth = process.env.EXPO_PUBLIC_POP_API_BASIC_AUTH || "user:password";
+
+const encodeBase64 = (value: string) => {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+  let output = "";
+  let index = 0;
+
+  while (index < value.length) {
+    const chr1 = value.charCodeAt(index++);
+    const chr2 = value.charCodeAt(index++);
+    const chr3 = value.charCodeAt(index++);
+    const enc1 = chr1 >> 2;
+    const enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+    let enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+    let enc4 = chr3 & 63;
+
+    if (Number.isNaN(chr2)) {
+      enc3 = 64;
+      enc4 = 64;
+    } else if (Number.isNaN(chr3)) {
+      enc4 = 64;
+    }
+
+    output += chars.charAt(enc1) + chars.charAt(enc2) + chars.charAt(enc3) + chars.charAt(enc4);
+  }
+
+  return output;
+};
+
+export const isLegacyApi = (() => {
+  const host = new URL(apiOrigin).hostname;
+  return host === "localhost" || host === "127.0.0.1";
+})();
 
 export class ApiError extends Error {
   constructor(
@@ -58,4 +91,23 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions<T> 
   const text = await response.text();
   const data = text ? JSON.parse(text) : undefined;
   return schema ? schema.parse(data) : (data as T);
+}
+
+export function legacyToken(userId: number | string) {
+  return `legacy:${userId}`;
+}
+
+export function legacyUserIdFromToken(token: string) {
+  if (!token.startsWith("legacy:")) throw new ApiError("Session locale invalide", 401);
+  return Number(token.slice("legacy:".length));
+}
+
+export async function legacyApiRequest<T>(path: string, options: ApiRequestOptions<T> = {}) {
+  return apiRequest<T>(path, {
+    ...options,
+    headers: {
+      Authorization: `Basic ${encodeBase64(basicAuth)}`,
+      ...options.headers
+    }
+  });
 }
