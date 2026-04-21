@@ -39,6 +39,7 @@ const fr = {
   errorFetchingQuestion: "Erreur de chargement des questions",
   errorFetchingQuestionList: "Erreur de chargement de la liste",
   errorFetchingQuestionResult: "Erreur de chargement du résultat",
+  errorLoadingUserInfo: "Erreur de chargement des informations utilisateur",
   noQuestionAvailable: "Aucune question disponible",
   draftToValid: "Brouillons",
   valid: "Validées",
