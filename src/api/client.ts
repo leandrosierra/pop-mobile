@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-export const apiOrigin = process.env.EXPO_PUBLIC_POP_API_ORIGIN || "http://localhost:8080";
+const configuredApiOrigin = process.env.EXPO_PUBLIC_POP_API_ORIGIN || "http://localhost:8080";
+export const apiOrigin =
+  configuredApiOrigin === "same-origin" && typeof window !== "undefined"
+    ? window.location.origin
+    : configuredApiOrigin;
 const apiMode = process.env.EXPO_PUBLIC_POP_API_MODE;
 const basicAuth = process.env.EXPO_PUBLIC_POP_API_BASIC_AUTH || "user:password";
 
