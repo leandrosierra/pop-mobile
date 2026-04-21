@@ -84,6 +84,14 @@ export type LegacyAnsweredQuestion = PopAnsweredQuestion & {
   summaryKey: string;
 };
 
+export type LegacyPage<T> = {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+};
+
 export const legacyInterests = [
   { code: "Ecologie", label: "Ecologie" },
   { code: "Education", label: "Education" },
@@ -103,6 +111,10 @@ export const legacyLocations = [
   { id: "13055", code: "13055", label: "Marseille", type: "CITY" as const },
   { id: "44109", code: "44109", label: "Nantes", type: "CITY" as const }
 ];
+
+export function legacyPageContent<T>(page: LegacyPage<T>) {
+  return page.content;
+}
 
 const statusMap: Record<string, PopQuestion["status"]> = {
   BROUILLON: "DRAFT",

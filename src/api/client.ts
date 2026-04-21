@@ -64,6 +64,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions<T> 
   try {
     response = await fetch(buildUrl(path, query), {
       ...init,
+      cache: "no-store",
       headers: {
         Accept: "application/json",
         ...(body ? { "Content-Type": "application/json" } : {}),

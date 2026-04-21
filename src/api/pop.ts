@@ -16,7 +16,9 @@ import {
   legacyAnswerId,
   legacyInterests,
   legacyLocations,
+  legacyPageContent,
   legacyStatusId,
+  LegacyPage,
   LegacyQuestion,
   LegacyStat,
   mapLegacyAnsweredQuestion,
@@ -285,7 +287,9 @@ export const popApi = {
   },
   listQuestionFeed(token: string) {
     if (isLegacyApi) {
-      return legacyApiRequest<LegacyQuestion[]>("/question/feed", { token }).then((questions) => questions.map(mapLegacyQuestion));
+      return legacyApiRequest<LegacyPage<LegacyQuestion>>("/question/feed", { token, query: { page: 0, size: 10 } })
+        .then(legacyPageContent)
+        .then((questions) => questions.map(mapLegacyQuestion));
     }
 
     return apiRequest("/pop/user/question-feed", {
@@ -298,8 +302,8 @@ export const popApi = {
     if (isLegacyApi) {
       return Promise.all([
         legacyApiRequest<LegacyQuestion>(`/question/${id}`, { token }),
-        legacyApiRequest<LegacyStat[]>(`/stat/question/${id}`, { token })
-      ]).then(([question, stats]) => mapLegacyQuestionDetail(question, stats));
+        legacyApiRequest<LegacyPage<LegacyStat>>(`/stat/question/${id}`, { token, query: { page: 0, size: 10 } })
+      ]).then(([question, stats]) => mapLegacyQuestionDetail(question, legacyPageContent(stats)));
     }
 
     return apiRequest(`/pop/questions/${id}`, {
@@ -316,9 +320,9 @@ export const popApi = {
   },
   userAuthoredQuestions(token: string) {
     if (isLegacyApi) {
-      return legacyApiRequest<LegacyQuestion[]>("/question/user/current", { token }).then((questions) =>
-        questions.map(mapLegacyQuestion)
-      );
+      return legacyApiRequest<LegacyPage<LegacyQuestion>>("/question/user/current", { token, query: { page: 0, size: 10 } })
+        .then(legacyPageContent)
+        .then((questions) => questions.map(mapLegacyQuestion));
     }
 
     return apiRequest("/pop/user/questions", {
@@ -329,9 +333,9 @@ export const popApi = {
   },
   userAnsweredQuestions(token: string) {
     if (isLegacyApi) {
-      return legacyApiRequest<LegacyStat[]>("/stat/user/current", { token }).then((stats) =>
-        stats.map(mapLegacyAnsweredQuestion)
-      );
+      return legacyApiRequest<LegacyPage<LegacyStat>>("/stat/user/current", { token, query: { page: 0, size: 10 } })
+        .then(legacyPageContent)
+        .then((stats) => stats.map(mapLegacyAnsweredQuestion));
     }
 
     return apiRequest("/pop/user/answers", {
@@ -345,11 +349,13 @@ export const popApi = {
   },
   adminQuestions(token: string) {
     if (isLegacyApi) {
-      return legacyApiRequest<LegacyQuestion[]>("/question/all", { token }).then((questions) => ({
-        DRAFT: questions.filter((question) => question.statut?.code === "BROUILLON").map(mapLegacyQuestion),
-        ACTIVE: questions.filter((question) => question.statut?.code === "ACTIF").map(mapLegacyQuestion),
-        IDLE: questions.filter((question) => question.statut?.code === "INACTIF").map(mapLegacyQuestion)
-      }));
+      return legacyApiRequest<LegacyPage<LegacyQuestion>>("/question/all", { token, query: { page: 0, size: 10 } })
+        .then(legacyPageContent)
+        .then((questions) => ({
+          DRAFT: questions.filter((question) => question.statut?.code === "BROUILLON").map(mapLegacyQuestion),
+          ACTIVE: questions.filter((question) => question.statut?.code === "ACTIF").map(mapLegacyQuestion),
+          IDLE: questions.filter((question) => question.statut?.code === "INACTIF").map(mapLegacyQuestion)
+        }));
     }
 
     return apiRequest("/pop/questions", {
