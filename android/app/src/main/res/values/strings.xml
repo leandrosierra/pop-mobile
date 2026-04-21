@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">Pop</string>
-    <string name="facebook_app_id">330178932469621</string>
-    <string name="fb_login_protocol_scheme">fb330178932469621</string>
-    <string name="facebook_client_token">048259694a47580467ffff2a8c256aa5</string>
-</resources>
-
