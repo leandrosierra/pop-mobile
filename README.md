@@ -9,7 +9,7 @@ npm install
 npm run start
 ```
 
-L'API cible par defaut est `https://pop-litic.com`.
+L'API cible par defaut est `http://localhost:8080`.
 Pour changer d'API localement :
 
 ```bash
