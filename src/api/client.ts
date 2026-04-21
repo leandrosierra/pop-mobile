@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const apiOrigin = process.env.EXPO_PUBLIC_POP_API_ORIGIN || "https://pop-litic.com";
+const apiMode = process.env.EXPO_PUBLIC_POP_API_MODE;
 const basicAuth = process.env.EXPO_PUBLIC_POP_API_BASIC_AUTH || "user:password";
 
 const encodeBase64 = (value: string) => {
@@ -32,7 +33,8 @@ const encodeBase64 = (value: string) => {
 
 export const isLegacyApi = (() => {
   const host = new URL(apiOrigin).hostname;
-  return host === "localhost" || host === "127.0.0.1";
+  if (apiMode) return apiMode === "legacy";
+  return host === "localhost" || host === "127.0.0.1" || host.endsWith(".trycloudflare.com");
 })();
 
 export class ApiError extends Error {
