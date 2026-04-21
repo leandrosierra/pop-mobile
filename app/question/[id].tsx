@@ -8,20 +8,26 @@ import { AppScreen } from "@/components/AppScreen";
 import { Chip } from "@/components/Chip";
 import { ErrorState, LoadingState } from "@/components/Feedback";
 import { Header } from "@/components/Header";
+import { QuestionDiscussion } from "@/components/QuestionDiscussion";
+import { QuestionLawWorkspace } from "@/components/QuestionLawWorkspace";
+import { QuestionMeetings } from "@/components/QuestionMeetings";
 import { QuestionCard } from "@/components/QuestionCard";
 import { ResultBars } from "@/components/ResultBars";
+import { SegmentedControl } from "@/components/SegmentedControl";
 import { popApi } from "@/api/pop";
 import { PopQuestion } from "@/domain/schemas";
 import { useAuthStore } from "@/store/authStore";
 import { cardColors, colors, fontFamilies, fontWeights, spacing, typography } from "@/theme";
 
-type Mode = "detail" | "stats" | "vote";
+type Mode = "detail" | "stats" | "discussion" | "meetings" | "law" | "vote";
+type PanelMode = Exclude<Mode, "vote">;
 
 export default function QuestionScreen() {
   const { t } = useTranslation();
   const params = useLocalSearchParams<{ id: string; mode?: Mode }>();
   const id = Number(params.id);
   const mode = params.mode ?? "detail";
+  const panelMode: PanelMode = mode === "vote" ? "detail" : mode;
   const token = useAuthStore((state) => state.requireToken());
 
   const query = useQuery({
@@ -73,14 +79,35 @@ export default function QuestionScreen() {
       <Header back settings={false} homeLink={false} />
       <AppCard style={styles.content}>
         <Text style={styles.title}>{detail.questionTitle}</Text>
-        {mode === "detail" ? <Text style={styles.description}>{detail.questionDesc}</Text> : null}
         <View style={styles.tags}>
           {detail.geoTags.map((geo) => <Chip key={`${geo.type}-${geo.id}`} label={geo.label} />)}
           {detail.interestTags.map((interest) => <Chip key={interest.code} label={interest.label} />)}
         </View>
-        {mode === "stats" ? <ResultBars stats={detail.stats} /> : null}
+        <SegmentedControl<PanelMode>
+          value={panelMode}
+          segments={[
+            { value: "detail", label: t("info") },
+            { value: "stats", label: t("votes") },
+            { value: "discussion", label: t("debate") },
+            { value: "meetings", label: t("meetings") },
+            { value: "law", label: t("law") }
+          ]}
+          onChange={(nextMode) => router.setParams({ mode: nextMode })}
+        />
+        {panelMode === "detail" ? <Text style={styles.description}>{detail.questionDesc}</Text> : null}
+        {panelMode === "stats" ? <ResultBars stats={detail.stats} /> : null}
+        {panelMode === "discussion" ? <QuestionDiscussion questionId={id} token={token} /> : null}
+        {panelMode === "meetings" ? <QuestionMeetings questionId={id} token={token} /> : null}
+        {panelMode === "law" ? (
+          <QuestionLawWorkspace
+            questionId={id}
+            questionTitle={detail.questionTitle}
+            questionDescription={detail.questionDesc}
+            token={token}
+          />
+        ) : null}
         <View style={styles.actions}>
-          {mode === "detail" ? (
+          {panelMode === "detail" ? (
             <AppButton label={t("ok")} onPress={() => router.back()} />
           ) : (
             <AppButton label={t("ok")} onPress={() => router.replace("/home")} />

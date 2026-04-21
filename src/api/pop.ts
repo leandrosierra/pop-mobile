@@ -4,6 +4,14 @@ import { apiRequest, isApiNetworkError } from "./client";
 import { authApi } from "./auth";
 import {
   backendAnswerId,
+  BackendActualite,
+  BackendBudget,
+  BackendBudgetChoiceResult,
+  BackendLoiIncoherence,
+  BackendPropositionLoi,
+  BackendQuestionComment,
+  BackendQuestionMeeting,
+  BackendQuestionSuggestion,
   backendInterests,
   backendLocations,
   backendPageContent,
@@ -25,6 +33,28 @@ type SaveQuestionInput = {
   questionDesc: string;
   geoTags: PopLocation[];
   interestTags: string[];
+};
+
+type CreateMeetingInput = {
+  typeMeeting: "VIRTUEL" | "PHYSIQUE";
+  titre: string;
+  description: string;
+  lieu: string;
+  url: string;
+  dateDebut: string;
+  dateFin: string;
+};
+
+type BudgetAllocationInput = {
+  posteId: number;
+  montant: number;
+};
+
+type LawProposalInput = {
+  titre: string;
+  exposeMotifs: string;
+  dispositif: string;
+  analyseConformite: string;
 };
 
 const completeOnline = () => Promise.resolve();
@@ -175,6 +205,79 @@ export const popApi = {
       { type: "ANSWER_QUESTION", token, payload: { id, responseType, method } },
       () => answerQuestionOnline(token, id, responseType, method)
     );
+  },
+  questionComments(token: string, id: number) {
+    return apiRequest<BackendPage<BackendQuestionComment>>(`/discussion/question/${id}/comments`, { token, query: { page: 0, size: 10 } })
+      .then(backendPageContent);
+  },
+  createQuestionComment(token: string, id: number, contenu: string, parentCommentId?: number) {
+    return apiRequest<BackendQuestionComment>(`/discussion/question/${id}/comment/create`, {
+      method: "POST",
+      token,
+      body: JSON.stringify({
+        contenu,
+        parentComment: parentCommentId ? { id: parentCommentId } : null
+      })
+    });
+  },
+  questionMeetings(token: string, id: number) {
+    return apiRequest<BackendPage<BackendQuestionMeeting>>(`/discussion/question/${id}/meetings`, { token, query: { page: 0, size: 10 } })
+      .then(backendPageContent);
+  },
+  createQuestionMeeting(token: string, id: number, meeting: CreateMeetingInput) {
+    return apiRequest<BackendQuestionMeeting>(`/discussion/question/${id}/meeting/create`, {
+      method: "POST",
+      token,
+      body: JSON.stringify(meeting)
+    });
+  },
+  budgetsForTerritory(token: string, niveau: string, code: string) {
+    return apiRequest<BackendPage<BackendBudget>>(`/budget/territoire/${niveau}/${code}`, { token, query: { page: 0, size: 10 } })
+      .then(backendPageContent);
+  },
+  saveBudgetChoice(token: string, budgetId: number, allocations: BudgetAllocationInput[]) {
+    return apiRequest<BackendBudgetChoiceResult>("/budget/choix/create", {
+      method: "POST",
+      token,
+      body: JSON.stringify({
+        budget: { id: budgetId },
+        allocations: allocations.map((allocation) => ({
+          poste: { id: allocation.posteId },
+          montant: allocation.montant
+        }))
+      })
+    });
+  },
+  actualites(token: string) {
+    return apiRequest<BackendPage<BackendActualite>>("/actualite/all", { token, query: { page: 0, size: 10 } })
+      .then(backendPageContent);
+  },
+  questionSuggestions(token: string) {
+    return apiRequest<BackendPage<BackendQuestionSuggestion>>("/actualite/suggestions", { token, query: { page: 0, size: 10 } })
+      .then(backendPageContent);
+  },
+  lawIncoherences(token: string) {
+    return apiRequest<BackendPage<BackendLoiIncoherence>>("/loi/incoherence/all", { token, query: { page: 0, size: 10 } })
+      .then(backendPageContent);
+  },
+  questionLawProposals(token: string, id: number) {
+    return apiRequest<BackendPage<BackendPropositionLoi>>(`/loi/proposition/question/${id}`, { token, query: { page: 0, size: 10 } })
+      .then(backendPageContent);
+  },
+  currentUserLawProposals(token: string) {
+    return apiRequest<BackendPage<BackendPropositionLoi>>("/loi/proposition/user/current", { token, query: { page: 0, size: 10 } })
+      .then(backendPageContent);
+  },
+  createLawProposal(token: string, questionId: number, proposal: LawProposalInput) {
+    return apiRequest<BackendPropositionLoi>("/loi/proposition/create", {
+      method: "POST",
+      token,
+      body: JSON.stringify({
+        question: { id: questionId },
+        ...proposal,
+        statut: "BROUILLON"
+      })
+    });
   },
   userAuthoredQuestions(token: string) {
     return apiRequest<BackendPage<BackendQuestion>>("/question/user/current", { token, query: { page: 0, size: 10 } })

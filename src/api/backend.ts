@@ -80,6 +80,133 @@ export type BackendStat = {
   user?: BackendUser;
 };
 
+export type BackendQuestionComment = {
+  id: number;
+  contenu?: string;
+  user?: BackendUser;
+  parentComment?: BackendQuestionComment;
+  dateCreation?: string | number;
+  dateModification?: string | number;
+};
+
+export type BackendQuestionMeeting = {
+  id: number;
+  typeMeeting?: "VIRTUEL" | "PHYSIQUE" | string;
+  titre?: string;
+  description?: string;
+  lieu?: string;
+  url?: string;
+  user?: BackendUser;
+  dateDebut?: string | number;
+  dateFin?: string | number;
+  dateCreation?: string | number;
+  dateModification?: string | number;
+};
+
+export type BackendBudgetImpact = {
+  id: number;
+  sens?: "POSITIF" | "NEGATIF" | string;
+  libelle?: string;
+  description?: string;
+  seuilPourcentage?: number | string;
+};
+
+export type BackendBudgetPoste = {
+  id: number;
+  code?: string;
+  libelle?: string;
+  description?: string;
+  montantActuel?: number | string;
+  impacts?: BackendBudgetImpact[];
+};
+
+export type BackendBudget = {
+  id: number;
+  niveau?: string;
+  codeTerritoire?: string;
+  libelleTerritoire?: string;
+  annee?: number;
+  montantTotal?: number | string;
+  postes?: BackendBudgetPoste[];
+  dateCreation?: string | number;
+  dateModification?: string | number;
+};
+
+export type BackendBudgetAllocation = {
+  id?: number;
+  poste?: BackendBudgetPoste;
+  montant?: number | string;
+};
+
+export type BackendBudgetChoice = {
+  id?: number;
+  budget?: BackendBudget;
+  allocations?: BackendBudgetAllocation[];
+  dateCreation?: string | number;
+  dateModification?: string | number;
+};
+
+export type BackendBudgetChoiceResult = {
+  choix?: BackendBudgetChoice;
+  impacts?: BackendBudgetImpact[];
+};
+
+export type BackendActualite = {
+  id: number;
+  source?: string;
+  titre?: string;
+  resume?: string;
+  url?: string;
+  datePublication?: string | number;
+  dateCreation?: string | number;
+};
+
+export type BackendQuestionSuggestion = {
+  id: number;
+  actualite?: BackendActualite;
+  question?: BackendQuestion;
+  statut?: string;
+  titre?: string;
+  description?: string;
+  dateCreation?: string | number;
+  dateModification?: string | number;
+};
+
+export type BackendLoi = {
+  id: number;
+  code?: string;
+  titre?: string;
+  contenu?: string;
+  source?: string;
+  datePublication?: string | number;
+  dateCreation?: string | number;
+  dateModification?: string | number;
+};
+
+export type BackendLoiIncoherence = {
+  id: number;
+  loi?: BackendLoi;
+  loiReference?: BackendLoi;
+  description?: string;
+  correctionProposee?: string;
+  statut?: string;
+  dateCreation?: string | number;
+  dateModification?: string | number;
+};
+
+export type BackendPropositionLoi = {
+  id: number;
+  question?: BackendQuestion;
+  user?: BackendUser;
+  titre?: string;
+  exposeMotifs?: string;
+  dispositif?: string;
+  analyseConformite?: string;
+  statut?: string;
+  dateCreation?: string | number;
+  dateModification?: string | number;
+};
+
 export type BackendAnsweredQuestion = PopAnsweredQuestion & {
   summaryKey: string;
 };

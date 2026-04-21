@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { CirclePlus, Home, ListChecks, Settings } from "lucide-react-native";
+import { CirclePlus, Home, Landmark, ListChecks, Settings } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { AuthGate } from "@/components/AuthGate";
 import { colors, fontFamilies, fontWeights, typography } from "@/theme";
@@ -47,6 +47,13 @@ export default function AppTabsLayout() {
           options={{
             title: t("summary"),
             tabBarIcon: ({ color }) => <ListChecks color={color} size={22} />
+          }}
+        />
+        <Tabs.Screen
+          name="civic"
+          options={{
+            title: t("civicShort"),
+            tabBarIcon: ({ color }) => <Landmark color={color} size={22} />
           }}
         />
         <Tabs.Screen
