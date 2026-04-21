@@ -10,7 +10,7 @@ import { Header } from "@/components/Header";
 import { popApi } from "@/api/pop";
 import { PopQuestion } from "@/domain/schemas";
 import { useAuthStore } from "@/store/authStore";
-import { colors, spacing } from "@/theme";
+import { colors, radii, shadows, spacing, typography } from "@/theme";
 
 const statusTabs = ["DRAFT", "ACTIVE", "IDLE"] as const;
 type StatusTab = (typeof statusTabs)[number];
@@ -35,7 +35,7 @@ export default function AdminQuestionsScreen() {
 
   return (
     <AppScreen padded={false}>
-      <Header title={t("admin")} back create={false} />
+      <Header title={t("admin")} back create={false} settings={false} homeLink={false} />
       <View style={styles.content}>
         <View style={styles.tabs}>
           {statusTabs.map((tab) => (
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: radii.md,
     overflow: "hidden"
   },
   tab: {
@@ -105,14 +105,20 @@ const styles = StyleSheet.create({
     color: "#fff"
   },
   separator: {
-    height: 1,
-    backgroundColor: colors.border
+    height: spacing.sm
   },
   item: {
-    paddingVertical: spacing.md
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    padding: spacing.md,
+    ...shadows.sm
   },
   questionTitle: {
     color: colors.text,
+    fontSize: typography.body,
+    lineHeight: 21,
     fontWeight: "800"
   },
   creator: {

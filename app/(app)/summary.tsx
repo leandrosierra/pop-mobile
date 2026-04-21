@@ -10,7 +10,7 @@ import { Header } from "@/components/Header";
 import { popApi } from "@/api/pop";
 import { PopAnsweredQuestion, PopQuestion } from "@/domain/schemas";
 import { useAuthStore } from "@/store/authStore";
-import { colors, spacing } from "@/theme";
+import { colors, radii, shadows, spacing, typography } from "@/theme";
 
 type TabName = "authored" | "answered";
 type SummaryItem = PopQuestion | PopAnsweredQuestion;
@@ -36,10 +36,12 @@ export default function SummaryScreen() {
 
   return (
     <AppScreen padded={false}>
-      <Header title={t("summary")} />
+      <Header title={t("summary")} settings={false} />
       <View style={styles.content}>
-        <AppButton label={t("submitReferendum")} onPress={() => router.push("/create-question")} />
-        {user?.role === "ADMIN" ? <AppButton label={t("approvals")} variant="secondary" onPress={() => router.push("/admin")} /> : null}
+        <View style={styles.actions}>
+          <AppButton label={t("submitReferendum")} onPress={() => router.push("/create-question")} />
+          {user?.role === "ADMIN" ? <AppButton label={t("approvals")} variant="secondary" onPress={() => router.push("/admin")} /> : null}
+        </View>
         <View style={styles.tabs}>
           <Pressable style={[styles.tab, tab === "authored" && styles.activeTab]} onPress={() => setTab("authored")}>
             <Text style={[styles.tabText, tab === "authored" && styles.activeTabText]}>{t("myQuestion")}</Text>
@@ -85,11 +87,14 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.md
   },
+  actions: {
+    gap: spacing.sm
+  },
   tabs: {
     flexDirection: "row",
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 8,
+    borderRadius: radii.md,
     overflow: "hidden"
   },
   tab: {
@@ -110,14 +115,20 @@ const styles = StyleSheet.create({
     color: "#fff"
   },
   separator: {
-    height: 1,
-    backgroundColor: colors.border
+    height: spacing.sm
   },
   listItem: {
-    paddingVertical: spacing.md
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    padding: spacing.md,
+    ...shadows.sm
   },
   questionTitle: {
     color: colors.text,
+    fontSize: typography.body,
+    lineHeight: 21,
     fontWeight: "800"
   },
   response: {

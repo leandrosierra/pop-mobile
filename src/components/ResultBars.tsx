@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { QuestionStats } from "@/domain/schemas";
-import { colors, spacing } from "@/theme";
+import { colors, radii, spacing, typography } from "@/theme";
 
 type ResultBarsProps = {
   stats: QuestionStats;
@@ -38,7 +38,12 @@ export function ResultBars({ stats }: ResultBarsProps) {
 
 const styles = StyleSheet.create({
   root: {
-    gap: spacing.md
+    gap: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    backgroundColor: colors.surface,
+    padding: spacing.md
   },
   row: {
     gap: spacing.xs
@@ -50,15 +55,17 @@ const styles = StyleSheet.create({
   },
   label: {
     color: colors.text,
+    fontSize: typography.small,
     fontWeight: "800"
   },
   value: {
     color: colors.muted,
-    fontWeight: "700"
+    fontSize: typography.small,
+    fontWeight: "800"
   },
   track: {
-    height: 14,
-    borderRadius: 8,
+    height: 12,
+    borderRadius: radii.sm,
     backgroundColor: "#e6ebf5",
     overflow: "hidden"
   },

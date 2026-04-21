@@ -9,7 +9,7 @@ import {
   View,
   ViewStyle
 } from "react-native";
-import { colors, spacing } from "@/theme";
+import { colors, radii, spacing, typography } from "@/theme";
 
 type AppButtonProps = Omit<PressableProps, "style"> & {
   label: string;
@@ -55,12 +55,13 @@ export function AppButton({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 46,
-    borderRadius: 8,
+    minHeight: 48,
+    borderRadius: radii.md,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm
+    paddingVertical: spacing.sm,
+    flexShrink: 0
   },
   content: {
     flexDirection: "row",
@@ -69,11 +70,14 @@ const styles = StyleSheet.create({
     gap: spacing.sm
   },
   label: {
-    fontSize: 15,
-    fontWeight: "700"
+    fontSize: typography.body,
+    fontWeight: "800",
+    textAlign: "center"
   },
   primary: {
-    backgroundColor: colors.primary
+    backgroundColor: colors.primary,
+    borderWidth: 1,
+    borderColor: colors.primary
   },
   primaryLabel: {
     color: "#fff"
@@ -87,13 +91,17 @@ const styles = StyleSheet.create({
     color: colors.primary
   },
   danger: {
-    backgroundColor: colors.danger
+    backgroundColor: colors.danger,
+    borderWidth: 1,
+    borderColor: colors.danger
   },
   dangerLabel: {
     color: "#fff"
   },
   ghost: {
-    backgroundColor: "transparent"
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "transparent"
   },
   ghostLabel: {
     color: colors.primary

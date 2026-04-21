@@ -27,6 +27,8 @@ const fr = {
   createAccount: "Créer un compte",
   forgotPassword: "Mot de passe oublié",
   yourEmailAddress: "Votre adresse email",
+  loginIdentifier: "Identifiant",
+  yourLoginIdentifier: "Votre identifiant",
   password: "Mot de passe",
   resetPassword: "Réinitialiser le mot de passe",
   enterYourPassword: "Entrez votre mot de passe",

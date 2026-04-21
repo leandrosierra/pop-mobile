@@ -1,16 +1,17 @@
 import { useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { AppButton } from "@/components/AppButton";
 import { AppScreen } from "@/components/AppScreen";
 import { Chip } from "@/components/Chip";
+import { FormField } from "@/components/FormField";
 import { Header } from "@/components/Header";
 import { popApi } from "@/api/pop";
 import { PopLocation } from "@/domain/schemas";
 import { useAuthStore } from "@/store/authStore";
-import { colors, spacing } from "@/theme";
+import { colors, radii, shadows, spacing, typography } from "@/theme";
 
 export default function GeographySetupScreen() {
   const { t } = useTranslation();
@@ -46,7 +47,7 @@ export default function GeographySetupScreen() {
 
   return (
     <AppScreen scroll>
-      <Header title={t("geographicalLocations")} back create={false} />
+      <Header title={t("geographicalLocations")} back create={false} settings={false} homeLink={false} />
       <View style={styles.content}>
         <Text style={styles.title}>{t("searchAndSelectLocations")}</Text>
         <View style={styles.chipWrap}>
@@ -54,7 +55,7 @@ export default function GeographySetupScreen() {
             <Chip key={`${location.type}-${location.id}`} label={location.label} selected onRemove={() => setSelected((current) => current.filter((item) => item !== location))} />
           ))}
         </View>
-        <TextInput value={searchText} onChangeText={setSearchText} placeholder={t("search")} style={styles.input} />
+        <FormField value={searchText} onChangeText={setSearchText} placeholder={t("search")} />
         <View style={styles.chipWrap}>
           {(locationsQuery.data ?? []).map((location) => (
             <Chip key={`${location.type}-${location.id}`} label={location.label} onPress={() => addLocation(location)} />
@@ -70,21 +71,19 @@ export default function GeographySetupScreen() {
 const styles = StyleSheet.create({
   content: {
     gap: spacing.md,
-    paddingTop: spacing.xl
+    marginTop: spacing.lg,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    padding: spacing.lg,
+    ...shadows.sm
   },
   title: {
     color: colors.primary,
-    fontSize: 22,
+    fontSize: typography.subtitle,
     fontWeight: "900",
     textAlign: "center"
-  },
-  input: {
-    minHeight: 50,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    backgroundColor: colors.surface,
-    paddingHorizontal: spacing.md
   },
   chipWrap: {
     flexDirection: "row",
@@ -93,6 +92,6 @@ const styles = StyleSheet.create({
   },
   error: {
     color: colors.danger,
-    fontWeight: "700"
+    fontWeight: "800"
   }
 });

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { KeyRound, LogOut, Trash2 } from "lucide-react-native";
@@ -8,10 +8,11 @@ import { AppButton } from "@/components/AppButton";
 import { AppScreen } from "@/components/AppScreen";
 import { Chip } from "@/components/Chip";
 import { ErrorState, LoadingState } from "@/components/Feedback";
+import { FormField } from "@/components/FormField";
 import { Header } from "@/components/Header";
 import { popApi } from "@/api/pop";
 import { useAuthStore } from "@/store/authStore";
-import { colors, spacing } from "@/theme";
+import { colors, radii, shadows, spacing, typography } from "@/theme";
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
@@ -60,7 +61,7 @@ export default function SettingsScreen() {
 
   return (
     <AppScreen scroll>
-      <Header title={t("settings")} create={false} />
+      <Header title={t("settings")} create={false} settings={false} />
       <View style={styles.profile}>
         <Text style={styles.name}>{user.name}</Text>
         <Text style={styles.email}>{user.email}</Text>
@@ -85,8 +86,8 @@ export default function SettingsScreen() {
 
       <View style={styles.passwordBox}>
         <Text style={styles.section}>{t("changeMyPassword")}</Text>
-        <TextInput value={password} onChangeText={setPassword} placeholder={t("password")} secureTextEntry style={styles.input} />
-        <TextInput value={confirmPassword} onChangeText={setConfirmPassword} placeholder={t("password")} secureTextEntry style={styles.input} />
+        <FormField value={password} onChangeText={setPassword} placeholder={t("password")} secureTextEntry />
+        <FormField value={confirmPassword} onChangeText={setConfirmPassword} placeholder={t("password")} secureTextEntry />
         {password && password !== confirmPassword ? <Text style={styles.error}>{t("passwordMismatching")}</Text> : null}
         <AppButton
           label={t("resetPassword")}
@@ -124,11 +125,18 @@ const styles = StyleSheet.create({
   profile: {
     alignItems: "center",
     gap: spacing.xs,
-    paddingVertical: spacing.lg
+    marginTop: spacing.md,
+    marginBottom: spacing.md,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    padding: spacing.lg,
+    ...shadows.sm
   },
   name: {
     color: colors.primary,
-    fontSize: 28,
+    fontSize: typography.title,
     fontWeight: "900"
   },
   email: {
@@ -141,6 +149,7 @@ const styles = StyleSheet.create({
   },
   section: {
     color: colors.primary,
+    fontSize: typography.body,
     fontWeight: "900",
     marginTop: spacing.md
   },
@@ -152,19 +161,16 @@ const styles = StyleSheet.create({
   },
   passwordBox: {
     gap: spacing.sm,
-    marginTop: spacing.lg
-  },
-  input: {
-    minHeight: 48,
+    marginTop: spacing.lg,
+    borderRadius: radii.md,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 8,
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.surface
+    backgroundColor: colors.surface,
+    padding: spacing.md
   },
   error: {
     color: colors.danger,
-    fontWeight: "700"
+    fontWeight: "800"
   },
   actions: {
     gap: spacing.sm,

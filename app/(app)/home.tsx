@@ -48,7 +48,7 @@ export default function HomeScreen() {
 
   return (
     <AppScreen padded={false}>
-      <Header />
+      <Header title="POP" />
       <View style={styles.content}>
         {query.isLoading ? <LoadingState label={t("pleaseWaitQuestionArrives")} /> : null}
         {query.isError ? <ErrorState label={t("errorFetchingQuestion")} /> : null}
@@ -87,13 +87,15 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   content: {
     flex: 1,
-    padding: spacing.md
+    padding: spacing.md,
+    gap: spacing.md
   },
   empty: {
     flex: 1
   },
   emptyActions: {
-    gap: spacing.sm
+    gap: spacing.sm,
+    marginTop: spacing.md
   },
   error: {
     color: colors.danger,

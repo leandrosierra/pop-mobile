@@ -26,6 +26,10 @@ export const authApi = {
     });
   },
   refreshToken(refreshToken: string) {
+    if (isLegacyApi) {
+      return Promise.resolve({ token: refreshToken, refreshToken });
+    }
+
     return apiRequest("/pop/user/refresh-token", {
       method: "POST",
       body: JSON.stringify({ refreshToken }),
@@ -44,18 +48,41 @@ export const authApi = {
     });
   },
   createEmailAccount(name: string, email: string) {
+    if (isLegacyApi) {
+      return legacyApiRequest<void>("/user/create", {
+        method: "POST",
+        body: JSON.stringify({
+          login: email,
+          nom: name,
+          prenom: "",
+          email,
+          password: "user",
+          actif: true,
+          role: { idRole: 2 }
+        })
+      });
+    }
+
     return apiRequest<void>("/pop/user/email-signup", {
       method: "POST",
       body: JSON.stringify({ emailId: email, nickname: name })
     });
   },
   forgotPassword(email: string) {
+    if (isLegacyApi) return Promise.resolve();
+
     return apiRequest<void>("/pop/user/email-forgot-password", {
       method: "POST",
       body: JSON.stringify({ mailId: email })
     });
   },
   deleteAccount(token: string) {
+    if (isLegacyApi) {
+      return legacyApiRequest<void>(`/user/delete/${legacyUserIdFromToken(token)}`, {
+        method: "DELETE"
+      });
+    }
+
     return apiRequest<void>("/pop/user/current", {
       method: "DELETE",
       token

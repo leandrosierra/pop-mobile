@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useMutation } from "@tanstack/react-query";
-import { Apple, Mail, MessageCircle, Search } from "lucide-react-native";
+import { Apple, LockKeyhole, MessageCircle, Search, UserRound } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { AppButton } from "@/components/AppButton";
 import { AppScreen } from "@/components/AppScreen";
+import { FormField } from "@/components/FormField";
 import { canShowProvider, signInWithSocialProvider, SocialProvider } from "@/services/socialAuth";
 import { useAuthStore } from "@/store/authStore";
-import { colors, spacing } from "@/theme";
+import { colors, radii, shadows, spacing, typography } from "@/theme";
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -46,27 +47,24 @@ export default function LoginScreen() {
       </View>
       <View style={styles.form}>
         <Text style={styles.sectionTitle}>{t("emailLogin")}</Text>
-        <View style={styles.field}>
-          <Mail color={colors.primary} size={18} />
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            placeholder={t("yourEmailAddress")}
-            style={styles.input}
-          />
-        </View>
-        <View style={styles.field}>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder={t("password")}
-            secureTextEntry
-            style={styles.input}
-          />
-        </View>
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        <FormField
+          label={t("loginIdentifier")}
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          autoCorrect={false}
+          placeholder={t("yourLoginIdentifier")}
+          icon={<UserRound color={colors.primary} size={18} />}
+          error={error}
+        />
+        <FormField
+          label={t("password")}
+          value={password}
+          onChangeText={setPassword}
+          placeholder={t("password")}
+          secureTextEntry
+          icon={<LockKeyhole color={colors.primary} size={18} />}
+        />
         <AppButton label={t("ok")} loading={loginMutation.isPending} onPress={submit} />
         <View style={styles.links}>
           <Pressable onPress={() => router.push("/forgot-password")}>
@@ -108,7 +106,7 @@ const styles = StyleSheet.create({
   hero: {
     backgroundColor: colors.primary,
     alignItems: "center",
-    paddingTop: spacing.xl,
+    paddingTop: spacing.lg,
     paddingBottom: spacing.lg,
     paddingHorizontal: spacing.lg
   },
@@ -119,44 +117,31 @@ const styles = StyleSheet.create({
   welcome: {
     color: "#fff",
     fontSize: 30,
+    lineHeight: 36,
     fontWeight: "900"
   },
   subtitle: {
     color: "#fff",
     textAlign: "center",
     marginTop: spacing.sm,
-    fontSize: 16,
+    fontSize: typography.body,
     lineHeight: 22
   },
   form: {
+    margin: spacing.md,
     padding: spacing.lg,
-    gap: spacing.md
+    gap: spacing.md,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    ...shadows.sm
   },
   sectionTitle: {
     color: colors.primary,
-    fontSize: 20,
+    fontSize: typography.subtitle,
     fontWeight: "900",
     textAlign: "center"
-  },
-  field: {
-    minHeight: 52,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    backgroundColor: colors.surface,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-    paddingHorizontal: spacing.md
-  },
-  input: {
-    flex: 1,
-    minHeight: 48,
-    color: colors.text
-  },
-  error: {
-    color: colors.danger,
-    fontWeight: "700"
   },
   links: {
     flexDirection: "row",
@@ -180,7 +165,7 @@ const styles = StyleSheet.create({
   socialButton: {
     width: 52,
     height: 52,
-    borderRadius: 8,
+    borderRadius: radii.md,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,

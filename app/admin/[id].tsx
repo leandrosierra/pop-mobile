@@ -9,7 +9,7 @@ import { ErrorState, LoadingState } from "@/components/Feedback";
 import { Header } from "@/components/Header";
 import { popApi } from "@/api/pop";
 import { useAuthStore } from "@/store/authStore";
-import { colors, spacing } from "@/theme";
+import { colors, radii, shadows, spacing, typography } from "@/theme";
 
 type AdminStatus = "ACTIVE" | "DRAFT" | "IDLE";
 
@@ -43,7 +43,7 @@ export default function AdminQuestionScreen() {
 
   return (
     <AppScreen scroll>
-      <Header title={t("admin")} back create={false} />
+      <Header title={t("admin")} back create={false} settings={false} homeLink={false} />
       <View style={styles.content}>
         <Text style={styles.title}>{detail.questionTitle}</Text>
         <Text style={styles.description}>{detail.questionDesc}</Text>
@@ -64,17 +64,24 @@ export default function AdminQuestionScreen() {
 const styles = StyleSheet.create({
   content: {
     gap: spacing.md,
-    paddingTop: spacing.md
+    marginTop: spacing.md,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    padding: spacing.lg,
+    ...shadows.sm
   },
   title: {
     color: colors.primary,
-    fontSize: 26,
-    lineHeight: 32,
+    fontSize: typography.title,
+    lineHeight: 30,
     textAlign: "center",
     fontWeight: "900"
   },
   description: {
     color: colors.text,
+    fontSize: typography.body,
     lineHeight: 23
   },
   tags: {

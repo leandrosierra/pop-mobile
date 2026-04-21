@@ -12,7 +12,7 @@ import { ResultBars } from "@/components/ResultBars";
 import { popApi } from "@/api/pop";
 import { PopQuestion } from "@/domain/schemas";
 import { useAuthStore } from "@/store/authStore";
-import { cardColors, colors, spacing } from "@/theme";
+import { cardColors, colors, radii, shadows, spacing, typography } from "@/theme";
 
 type Mode = "detail" | "stats" | "vote";
 
@@ -49,7 +49,7 @@ export default function QuestionScreen() {
   if (mode === "vote") {
     return (
       <AppScreen padded={false}>
-        <Header back create={false} />
+        <Header back create={false} settings={false} homeLink={false} />
         <View style={styles.cardContent}>
           <QuestionCard
             question={question}
@@ -64,7 +64,7 @@ export default function QuestionScreen() {
 
   return (
     <AppScreen scroll>
-      <Header back />
+      <Header back settings={false} homeLink={false} />
       <View style={styles.content}>
         <Text style={styles.title}>{detail.questionTitle}</Text>
         {mode === "detail" ? <Text style={styles.description}>{detail.questionDesc}</Text> : null}
@@ -97,18 +97,24 @@ const styles = StyleSheet.create({
   },
   content: {
     gap: spacing.md,
-    paddingTop: spacing.md
+    marginTop: spacing.md,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    padding: spacing.lg,
+    ...shadows.sm
   },
   title: {
     color: colors.primary,
-    fontSize: 28,
-    lineHeight: 34,
+    fontSize: typography.title,
+    lineHeight: 30,
     textAlign: "center",
     fontWeight: "900"
   },
   description: {
     color: colors.text,
-    fontSize: 16,
+    fontSize: typography.body,
     lineHeight: 24
   },
   tags: {

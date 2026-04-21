@@ -1,5 +1,5 @@
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { colors, spacing } from "@/theme";
+import { colors, radii, shadows, spacing, typography } from "@/theme";
 
 export function LoadingState({ label }: { label: string }) {
   return (
@@ -13,7 +13,9 @@ export function LoadingState({ label }: { label: string }) {
 export function EmptyState({ label }: { label: string }) {
   return (
     <View style={styles.root}>
-      <Text style={styles.title}>{label}</Text>
+      <View style={styles.panel}>
+        <Text style={styles.title}>{label}</Text>
+      </View>
     </View>
   );
 }
@@ -37,14 +39,25 @@ const styles = StyleSheet.create({
   title: {
     color: colors.text,
     textAlign: "center",
-    fontSize: 18,
+    fontSize: typography.subtitle,
+    lineHeight: 24,
     fontWeight: "800"
   },
   text: {
     color: colors.muted,
-    textAlign: "center"
+    textAlign: "center",
+    fontWeight: "700"
   },
   error: {
     color: colors.danger
+  },
+  panel: {
+    width: "100%",
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    padding: spacing.lg,
+    ...shadows.sm
   }
 });

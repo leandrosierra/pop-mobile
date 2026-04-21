@@ -1,16 +1,17 @@
 import { useMemo, useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { AppButton } from "@/components/AppButton";
 import { AppScreen } from "@/components/AppScreen";
 import { Chip } from "@/components/Chip";
+import { FormField } from "@/components/FormField";
 import { Header } from "@/components/Header";
 import { popApi } from "@/api/pop";
 import { PopInterest, PopLocation } from "@/domain/schemas";
 import { useAuthStore } from "@/store/authStore";
-import { colors, spacing } from "@/theme";
+import { colors, radii, shadows, spacing, typography } from "@/theme";
 
 export default function CreateQuestionScreen() {
   const { t } = useTranslation();
@@ -74,11 +75,11 @@ export default function CreateQuestionScreen() {
 
   return (
     <AppScreen scroll>
-      <Header title={t("createNewQuestion")} back create={false} />
+      <Header title={t("createNewQuestion")} create={false} settings={false} />
       <View style={styles.form}>
         <Text style={styles.title}>{t("proposeReferendumHere")}</Text>
-        <TextInput value={questionTitle} onChangeText={setQuestionTitle} placeholder={t("questionTitle")} maxLength={120} multiline style={styles.titleInput} />
-        <TextInput value={questionDesc} onChangeText={setQuestionDesc} placeholder={t("questionDescription")} multiline style={styles.descriptionInput} />
+        <FormField label={t("questionTitle")} value={questionTitle} onChangeText={setQuestionTitle} placeholder={t("questionTitle")} maxLength={120} multiline />
+        <FormField label={t("questionDescription")} value={questionDesc} onChangeText={setQuestionDesc} placeholder={t("questionDescription")} multiline />
 
         <Text style={styles.section}>{t("geographicalLocations")}</Text>
         <View style={styles.chipWrap}>
@@ -86,7 +87,7 @@ export default function CreateQuestionScreen() {
             <Chip key={`${location.type}-${location.id}`} label={location.label} selected onRemove={() => setSelectedLocations((current) => current.filter((item) => item !== location))} />
           ))}
         </View>
-        <TextInput value={locationSearch} onChangeText={setLocationSearch} placeholder={t("search")} style={styles.input} />
+        <FormField value={locationSearch} onChangeText={setLocationSearch} placeholder={t("search")} />
         <View style={styles.chipWrap}>
           {(locationsQuery.data ?? []).slice(0, 8).map((location) => (
             <Chip key={`${location.type}-${location.id}`} label={location.label} onPress={() => addLocation(location)} />
@@ -114,44 +115,23 @@ export default function CreateQuestionScreen() {
 const styles = StyleSheet.create({
   form: {
     gap: spacing.md,
-    paddingTop: spacing.md
+    marginTop: spacing.md,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    padding: spacing.lg,
+    ...shadows.sm
   },
   title: {
     color: colors.primary,
-    fontSize: 22,
+    fontSize: typography.title,
     fontWeight: "900",
     textAlign: "center"
   },
-  titleInput: {
-    minHeight: 92,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    borderRadius: 8,
-    padding: spacing.md,
-    backgroundColor: colors.surface,
-    textAlignVertical: "top",
-    fontSize: 18,
-    fontWeight: "800"
-  },
-  descriptionInput: {
-    minHeight: 150,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    padding: spacing.md,
-    backgroundColor: colors.surface,
-    textAlignVertical: "top"
-  },
-  input: {
-    minHeight: 48,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.surface
-  },
   section: {
     color: colors.primary,
+    fontSize: typography.body,
     fontWeight: "900"
   },
   chipWrap: {

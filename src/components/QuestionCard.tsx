@@ -11,7 +11,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { Info } from "lucide-react-native";
 import { PopQuestion } from "@/domain/schemas";
-import { colors, spacing } from "@/theme";
+import { colors, radii, shadows, spacing, typography } from "@/theme";
 
 type AnswerType = "YES" | "NO" | "NEUTRAL";
 
@@ -93,9 +93,10 @@ export function QuestionCard({ question, color, onAnswer, onMoreInfo }: Question
         ]}
       >
         <View style={styles.creatorRow}>
-          <Text style={styles.creator}>{question.creator}</Text>
+          <Text style={styles.creator} numberOfLines={1}>{question.creator}</Text>
         </View>
-        <Text style={styles.title}>{question.questionTitle}</Text>
+        <Text style={styles.title} adjustsFontSizeToFit minimumFontScale={0.78}>{question.questionTitle}</Text>
+        {question.questionDesc ? <Text style={styles.description} numberOfLines={3}>{question.questionDesc}</Text> : null}
         <Pressable style={styles.moreButton} onPress={onMoreInfo}>
           <Info color={color} size={18} />
           <Text style={[styles.moreLabel, { color }]}>{t("moreInfo")}</Text>
@@ -123,11 +124,12 @@ const styles = StyleSheet.create({
     gap: spacing.lg
   },
   card: {
-    minHeight: 440,
-    borderRadius: 8,
+    minHeight: 380,
+    borderRadius: radii.md,
     padding: spacing.lg,
     alignItems: "center",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    ...shadows.md
   },
   dragging: {
     opacity: 0.96
@@ -138,19 +140,27 @@ const styles = StyleSheet.create({
   },
   creator: {
     color: "#fff",
-    fontStyle: "italic",
-    fontWeight: "700"
+    fontWeight: "800",
+    opacity: 0.92
   },
   title: {
     color: "#fff",
     textAlign: "center",
-    fontSize: 38,
-    lineHeight: 44,
+    fontSize: 31,
+    lineHeight: 37,
     fontWeight: "900"
   },
+  description: {
+    color: "#fff",
+    textAlign: "center",
+    fontSize: typography.body,
+    lineHeight: 21,
+    fontWeight: "700",
+    opacity: 0.9
+  },
   moreButton: {
-    minHeight: 56,
-    borderRadius: 8,
+    minHeight: 48,
+    borderRadius: radii.md,
     backgroundColor: "#fff",
     flexDirection: "row",
     alignItems: "center",
@@ -163,23 +173,24 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: "row",
     justifyContent: "space-around",
-    gap: spacing.md
+    gap: spacing.sm
   },
   roundButton: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    ...shadows.sm
   },
   roundLabel: {
     color: "#fff",
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "900"
   },
   smallRoundLabel: {
     color: "#fff",
-    fontSize: 15,
+    fontSize: 13,
     textAlign: "center",
     fontWeight: "900",
     paddingHorizontal: spacing.xs

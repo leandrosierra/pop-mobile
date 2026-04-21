@@ -1,16 +1,18 @@
 import { router } from "expo-router";
 import { ChevronLeft, Plus, Settings } from "lucide-react-native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, spacing } from "@/theme";
+import { colors, radii, spacing, typography } from "@/theme";
 
 type HeaderProps = {
   title?: string;
   back?: boolean;
   settings?: boolean;
   create?: boolean;
+  homeLink?: boolean;
 };
 
-export function Header({ title = "POP!", back = false, settings = true, create = true }: HeaderProps) {
+export function Header({ title = "POP!", back = false, settings = true, create = true, homeLink = true }: HeaderProps) {
+  const titleNode = <Text style={styles.title} numberOfLines={1}>{title}</Text>;
   return (
     <View style={styles.root}>
       <View style={styles.slot}>
@@ -24,9 +26,7 @@ export function Header({ title = "POP!", back = false, settings = true, create =
           </Pressable>
         ) : null}
       </View>
-      <Pressable onPress={() => router.replace("/home")}>
-        <Text style={styles.title}>{title}</Text>
-      </Pressable>
+      {homeLink && !back ? <Pressable style={styles.titleButton} onPress={() => router.replace("/home")}>{titleNode}</Pressable> : <View style={styles.titleButton}>{titleNode}</View>}
       <View style={[styles.slot, styles.rightSlot]}>
         {create ? (
           <Pressable style={styles.iconButton} onPress={() => router.push("/create-question")}>
@@ -40,7 +40,7 @@ export function Header({ title = "POP!", back = false, settings = true, create =
 
 const styles = StyleSheet.create({
   root: {
-    minHeight: 58,
+    minHeight: 60,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -59,14 +59,21 @@ const styles = StyleSheet.create({
   iconButton: {
     width: 42,
     height: 42,
-    borderRadius: 8,
+    borderRadius: radii.md,
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    backgroundColor: colors.primarySoft
+  },
+  titleButton: {
+    flex: 1,
+    alignItems: "center",
+    paddingHorizontal: spacing.sm
   },
   title: {
     color: colors.primary,
-    fontSize: 32,
+    fontSize: typography.title,
     fontWeight: "900",
-    letterSpacing: 0
+    letterSpacing: 0,
+    lineHeight: 30
   }
 });

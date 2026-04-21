@@ -10,7 +10,7 @@ import { Header } from "@/components/Header";
 import { popApi } from "@/api/pop";
 import { PopInterest } from "@/domain/schemas";
 import { useAuthStore } from "@/store/authStore";
-import { colors, spacing } from "@/theme";
+import { colors, radii, shadows, spacing, typography } from "@/theme";
 
 export default function InterestSetupScreen() {
   const { t } = useTranslation();
@@ -43,7 +43,7 @@ export default function InterestSetupScreen() {
 
   return (
     <AppScreen scroll>
-      <Header title={t("interests")} back create={false} />
+      <Header title={t("interests")} back create={false} settings={false} homeLink={false} />
       <View style={styles.content}>
         <Text style={styles.title}>{t("selectInterest")}</Text>
         <View style={styles.actions}>
@@ -69,11 +69,17 @@ export default function InterestSetupScreen() {
 const styles = StyleSheet.create({
   content: {
     gap: spacing.md,
-    paddingTop: spacing.xl
+    marginTop: spacing.lg,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    padding: spacing.lg,
+    ...shadows.sm
   },
   title: {
     color: colors.primary,
-    fontSize: 22,
+    fontSize: typography.subtitle,
     fontWeight: "900",
     textAlign: "center"
   },
@@ -87,6 +93,6 @@ const styles = StyleSheet.create({
   },
   error: {
     color: colors.danger,
-    fontWeight: "700"
+    fontWeight: "800"
   }
 });
