@@ -67,13 +67,16 @@ export default function SignupScreen() {
 
 const styles = StyleSheet.create({
   form: {
-    gap: spacing.md,
-    marginTop: spacing.lg
+    width: "100%",
+    maxWidth: 360,
+    alignSelf: "center",
+    gap: spacing.sm,
+    marginTop: spacing.md
   },
   title: {
     fontFamily: fontFamilies.display,
     color: colors.primaryDark,
-    fontSize: typography.title,
+    fontSize: typography.subtitle,
     fontWeight: fontWeights.semibold
   },
   error: {

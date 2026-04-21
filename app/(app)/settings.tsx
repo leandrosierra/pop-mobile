@@ -198,12 +198,18 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   profile: {
+    width: "100%",
+    maxWidth: 380,
+    alignSelf: "center",
     alignItems: "center",
     gap: spacing.xs,
     marginTop: spacing.md,
     marginBottom: spacing.md
   },
   languageBox: {
+    width: "100%",
+    maxWidth: 380,
+    alignSelf: "center",
     gap: spacing.sm,
     marginBottom: spacing.md
   },
@@ -278,6 +284,9 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm
   },
   passwordBox: {
+    width: "100%",
+    maxWidth: 380,
+    alignSelf: "center",
     gap: spacing.sm,
     marginTop: spacing.lg
   },
@@ -292,6 +301,9 @@ const styles = StyleSheet.create({
     fontWeight: fontWeights.medium
   },
   actions: {
+    width: "100%",
+    maxWidth: 380,
+    alignSelf: "center",
     gap: spacing.sm,
     marginTop: spacing.lg,
     paddingBottom: spacing.xl

@@ -47,14 +47,14 @@ const styles = StyleSheet.create({
     fontWeight: fontWeights.semibold
   },
   inputShell: {
-    minHeight: 48,
+    minHeight: 42,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radii.md,
     backgroundColor: colors.surface,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: spacing.md
+    paddingHorizontal: spacing.sm
   },
   focusedShell: {
     borderColor: colors.primary,
@@ -70,14 +70,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.dangerSoft
   },
   icon: {
-    marginRight: spacing.sm
+    width: 24,
+    marginRight: spacing.sm,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0
   },
   input: {
     flex: 1,
-    minHeight: 46,
+    minHeight: 40,
     fontFamily: fontFamilies.sans,
     color: colors.text,
-    fontSize: typography.body,
+    fontSize: typography.small,
     outlineStyle: "none" as never
   },
   multilineInput: {

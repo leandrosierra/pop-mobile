@@ -58,7 +58,7 @@ export function AppButton({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 46,
+    minHeight: 42,
     borderRadius: radii.md,
     alignItems: "center",
     justifyContent: "center",
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: fontFamilies.sans,
-    fontSize: typography.body,
+    fontSize: typography.small,
     fontWeight: fontWeights.semibold,
     textAlign: "center"
   },

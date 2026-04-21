@@ -46,57 +46,61 @@ export default function LoginScreen() {
   return (
     <AppScreen scroll padded={false}>
       <View style={styles.hero}>
-        <Text style={styles.logo}>POP!</Text>
-        <Text style={styles.environmentTitle}>{pageTitle("POP")}</Text>
-        <Text style={styles.welcome}>{t("welcome")}</Text>
-        <Text style={styles.subtitle}>{t("appSubtitle")}</Text>
-      </View>
-      <View style={styles.form}>
-        <Text style={styles.sectionTitle}>{t("emailLogin")}</Text>
-        <FormField
-          label={t("loginIdentifier")}
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          autoCorrect={false}
-          placeholder={t("yourLoginIdentifier")}
-          icon={<UserRound color={colors.primary} size={18} />}
-          error={error}
-        />
-        <FormField
-          label={t("password")}
-          value={password}
-          onChangeText={setPassword}
-          placeholder={t("password")}
-          secureTextEntry
-          icon={<LockKeyhole color={colors.primary} size={18} />}
-        />
-        <AppButton label={t("ok")} loading={loginMutation.isPending} onPress={submit} />
-        <View style={styles.links}>
-          <Pressable onPress={() => router.push("/forgot-password")}>
-            <Text style={styles.link}>{t("forgotPassword")}</Text>
-          </Pressable>
-          <Pressable onPress={() => router.push("/signup")}>
-            <Text style={styles.link}>{t("createAccount")}</Text>
-          </Pressable>
+        <View style={styles.heroContent}>
+          <Text style={styles.logo}>POP!</Text>
+          <Text style={styles.environmentTitle}>{pageTitle("POP")}</Text>
+          <Text style={styles.welcome}>{t("welcome")}</Text>
+          <Text style={styles.subtitle}>{t("appSubtitle")}</Text>
         </View>
-        <Text style={styles.socialTitle}>{t("connectWith")}</Text>
-        <View style={styles.socialRow}>
-          {socialProviders.map((provider) => (
-            <Pressable
-              key={provider.id}
-              accessibilityLabel={`${t("connectWith")} ${provider.label}`}
-              disabled={socialMutation.isPending}
-              style={({ pressed }) => [
-                styles.socialButton,
-                pressed && styles.socialButtonPressed,
-                socialMutation.isPending && styles.socialButtonDisabled
-              ]}
-              onPress={() => socialMutation.mutate(provider.id)}
-            >
-              <SocialProviderIcon provider={provider.id} />
+      </View>
+      <View style={styles.formWrap}>
+        <View style={styles.form}>
+          <Text style={styles.sectionTitle}>{t("emailLogin")}</Text>
+          <FormField
+            label={t("loginIdentifier")}
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            autoCorrect={false}
+            placeholder={t("yourLoginIdentifier")}
+            icon={<UserRound color={colors.primary} size={17} />}
+            error={error}
+          />
+          <FormField
+            label={t("password")}
+            value={password}
+            onChangeText={setPassword}
+            placeholder={t("password")}
+            secureTextEntry
+            icon={<LockKeyhole color={colors.primary} size={17} />}
+          />
+          <AppButton label={t("ok")} loading={loginMutation.isPending} onPress={submit} />
+          <View style={styles.links}>
+            <Pressable onPress={() => router.push("/forgot-password")}>
+              <Text style={styles.link}>{t("forgotPassword")}</Text>
             </Pressable>
-          ))}
+            <Pressable onPress={() => router.push("/signup")}>
+              <Text style={styles.link}>{t("createAccount")}</Text>
+            </Pressable>
+          </View>
+          <Text style={styles.socialTitle}>{t("connectWith")}</Text>
+          <View style={styles.socialRow}>
+            {socialProviders.map((provider) => (
+              <Pressable
+                key={provider.id}
+                accessibilityLabel={`${t("connectWith")} ${provider.label}`}
+                disabled={socialMutation.isPending}
+                style={({ pressed }) => [
+                  styles.socialButton,
+                  pressed && styles.socialButtonPressed,
+                  socialMutation.isPending && styles.socialButtonDisabled
+                ]}
+                onPress={() => socialMutation.mutate(provider.id)}
+              >
+                <SocialProviderIcon provider={provider.id} />
+              </Pressable>
+            ))}
+          </View>
         </View>
       </View>
     </AppScreen>
@@ -107,27 +111,32 @@ const styles = StyleSheet.create({
   hero: {
     backgroundColor: colors.primary,
     alignItems: "center",
-    paddingTop: 44,
-    paddingBottom: 36,
+    paddingTop: 36,
+    paddingBottom: 28,
     paddingHorizontal: spacing.lg,
     borderBottomLeftRadius: spacing.lg,
     borderBottomRightRadius: spacing.lg
   },
+  heroContent: {
+    width: "100%",
+    maxWidth: 360,
+    alignItems: "center"
+  },
   logo: {
     color: "#fff",
     fontFamily: fontFamilies.display,
-    fontSize: 56,
-    lineHeight: 58,
+    fontSize: 44,
+    lineHeight: 46,
     fontWeight: fontWeights.black,
     letterSpacing: 0
   },
   welcome: {
     fontFamily: fontFamilies.display,
     color: "#fff",
-    fontSize: typography.h1,
-    lineHeight: 32,
+    fontSize: typography.title,
+    lineHeight: 28,
     fontWeight: fontWeights.semibold,
-    marginTop: spacing.lg
+    marginTop: spacing.md
   },
   environmentTitle: {
     fontFamily: fontFamilies.sans,
@@ -142,22 +151,27 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.sans,
     color: "#fff",
     textAlign: "center",
-    marginTop: spacing.sm,
-    fontSize: typography.body,
-    lineHeight: 21,
+    marginTop: spacing.xs,
+    fontSize: typography.small,
+    lineHeight: 19,
     opacity: 0.88
   },
-  form: {
+  formWrap: {
+    alignItems: "center",
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
     paddingBottom: spacing.lg,
-    gap: spacing.md,
     backgroundColor: colors.surface
+  },
+  form: {
+    width: "100%",
+    maxWidth: 360,
+    gap: spacing.sm
   },
   sectionTitle: {
     fontFamily: fontFamilies.sans,
     color: colors.text,
-    fontSize: typography.subtitle,
+    fontSize: typography.body,
     fontWeight: fontWeights.semibold,
     textAlign: "center"
   },
@@ -169,11 +183,13 @@ const styles = StyleSheet.create({
   link: {
     color: colors.primary,
     fontFamily: fontFamilies.sans,
+    fontSize: typography.small,
     fontWeight: fontWeights.semibold
   },
   socialTitle: {
     color: colors.muted,
     fontFamily: fontFamilies.sans,
+    fontSize: typography.small,
     textAlign: "center",
     fontWeight: fontWeights.medium
   },
@@ -183,8 +199,8 @@ const styles = StyleSheet.create({
     gap: spacing.md
   },
   socialButton: {
-    width: 52,
-    height: 52,
+    width: 44,
+    height: 44,
     borderRadius: radii.md,
     borderWidth: 1,
     borderColor: colors.border,
