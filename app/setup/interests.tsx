@@ -4,13 +4,14 @@ import { router } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { AppButton } from "@/components/AppButton";
+import { AppCard } from "@/components/AppCard";
 import { AppScreen } from "@/components/AppScreen";
 import { Chip } from "@/components/Chip";
 import { Header } from "@/components/Header";
 import { popApi } from "@/api/pop";
 import { PopInterest } from "@/domain/schemas";
 import { useAuthStore } from "@/store/authStore";
-import { colors, radii, shadows, spacing, typography } from "@/theme";
+import { colors, fontFamilies, fontWeights, spacing, typography } from "@/theme";
 
 export default function InterestSetupScreen() {
   const { t } = useTranslation();
@@ -44,7 +45,7 @@ export default function InterestSetupScreen() {
   return (
     <AppScreen scroll>
       <Header title={t("interests")} back create={false} settings={false} homeLink={false} />
-      <View style={styles.content}>
+      <AppCard style={styles.content}>
         <Text style={styles.title}>{t("selectInterest")}</Text>
         <View style={styles.actions}>
           <AppButton label={t("selectAll")} variant="secondary" onPress={() => setSelected(interestsQuery.data ?? [])} />
@@ -61,7 +62,7 @@ export default function InterestSetupScreen() {
         </View>
         {saveMutation.isError ? <Text style={styles.error}>{saveMutation.error instanceof Error ? saveMutation.error.message : t("cannotProcessRequest")}</Text> : null}
         <AppButton label={t("save")} disabled={!selected.length} loading={saveMutation.isPending} onPress={() => saveMutation.mutate()} />
-      </View>
+      </AppCard>
     </AppScreen>
   );
 }
@@ -69,19 +70,13 @@ export default function InterestSetupScreen() {
 const styles = StyleSheet.create({
   content: {
     gap: spacing.md,
-    marginTop: spacing.lg,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    padding: spacing.lg,
-    ...shadows.sm
+    marginTop: spacing.lg
   },
   title: {
-    color: colors.primary,
+    fontFamily: fontFamilies.display,
+    color: colors.primaryDark,
     fontSize: typography.subtitle,
-    fontWeight: "900",
-    textAlign: "center"
+    fontWeight: fontWeights.semibold
   },
   actions: {
     alignItems: "flex-start"
@@ -93,6 +88,7 @@ const styles = StyleSheet.create({
   },
   error: {
     color: colors.danger,
-    fontWeight: "800"
+    fontFamily: fontFamilies.sans,
+    fontWeight: fontWeights.semibold
   }
 });

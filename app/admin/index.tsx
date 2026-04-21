@@ -7,10 +7,11 @@ import { AppButton } from "@/components/AppButton";
 import { AppScreen } from "@/components/AppScreen";
 import { EmptyState, ErrorState, LoadingState } from "@/components/Feedback";
 import { Header } from "@/components/Header";
+import { SegmentedControl } from "@/components/SegmentedControl";
 import { popApi } from "@/api/pop";
 import { PopQuestion } from "@/domain/schemas";
 import { useAuthStore } from "@/store/authStore";
-import { colors, radii, shadows, spacing, typography } from "@/theme";
+import { colors, fontFamilies, fontWeights, radii, shadows, spacing, typography } from "@/theme";
 
 const statusTabs = ["DRAFT", "ACTIVE", "IDLE"] as const;
 type StatusTab = (typeof statusTabs)[number];
@@ -37,13 +38,11 @@ export default function AdminQuestionsScreen() {
     <AppScreen padded={false}>
       <Header title={t("admin")} back create={false} settings={false} homeLink={false} />
       <View style={styles.content}>
-        <View style={styles.tabs}>
-          {statusTabs.map((tab) => (
-            <Pressable key={tab} style={[styles.tab, status === tab && styles.activeTab]} onPress={() => setStatus(tab)}>
-              <Text style={[styles.tabText, status === tab && styles.activeTabText]}>{labels[tab]}</Text>
-            </Pressable>
-          ))}
-        </View>
+        <SegmentedControl
+          value={status}
+          onChange={setStatus}
+          segments={statusTabs.map((tab) => ({ value: tab, label: labels[tab] }))}
+        />
         {query.isLoading ? <LoadingState label={t("loadingData")} /> : null}
         {query.isError ? <ErrorState label={t("dataAccessProblem")} /> : null}
         {query.data && !questions.length ? <EmptyState label={t("noQuestionAvailable")} /> : null}
@@ -80,30 +79,6 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.md
   },
-  tabs: {
-    flexDirection: "row",
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    overflow: "hidden"
-  },
-  tab: {
-    flex: 1,
-    minHeight: 44,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.surface
-  },
-  activeTab: {
-    backgroundColor: colors.primary
-  },
-  tabText: {
-    color: colors.primary,
-    fontWeight: "800"
-  },
-  activeTabText: {
-    color: "#fff"
-  },
   separator: {
     height: spacing.sm
   },
@@ -116,12 +91,14 @@ const styles = StyleSheet.create({
     ...shadows.sm
   },
   questionTitle: {
+    fontFamily: fontFamilies.sans,
     color: colors.text,
     fontSize: typography.body,
     lineHeight: 21,
-    fontWeight: "800"
+    fontWeight: fontWeights.semibold
   },
   creator: {
+    fontFamily: fontFamilies.sans,
     color: colors.muted,
     marginTop: spacing.xs
   }

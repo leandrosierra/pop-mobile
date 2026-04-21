@@ -3,6 +3,7 @@ import { Share, StyleSheet, Text, View } from "react-native";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { AppButton } from "@/components/AppButton";
+import { AppCard } from "@/components/AppCard";
 import { AppScreen } from "@/components/AppScreen";
 import { Chip } from "@/components/Chip";
 import { ErrorState, LoadingState } from "@/components/Feedback";
@@ -12,7 +13,7 @@ import { ResultBars } from "@/components/ResultBars";
 import { popApi } from "@/api/pop";
 import { PopQuestion } from "@/domain/schemas";
 import { useAuthStore } from "@/store/authStore";
-import { cardColors, colors, radii, shadows, spacing, typography } from "@/theme";
+import { cardColors, colors, fontFamilies, fontWeights, spacing, typography } from "@/theme";
 
 type Mode = "detail" | "stats" | "vote";
 
@@ -65,7 +66,7 @@ export default function QuestionScreen() {
   return (
     <AppScreen scroll>
       <Header back settings={false} homeLink={false} />
-      <View style={styles.content}>
+      <AppCard style={styles.content}>
         <Text style={styles.title}>{detail.questionTitle}</Text>
         {mode === "detail" ? <Text style={styles.description}>{detail.questionDesc}</Text> : null}
         <View style={styles.tags}>
@@ -85,7 +86,7 @@ export default function QuestionScreen() {
             onPress={() => Share.share({ message: `POP: ${detail.questionTitle}` })}
           />
         </View>
-      </View>
+      </AppCard>
     </AppScreen>
   );
 }
@@ -97,25 +98,20 @@ const styles = StyleSheet.create({
   },
   content: {
     gap: spacing.md,
-    marginTop: spacing.md,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    padding: spacing.lg,
-    ...shadows.sm
+    marginTop: spacing.md
   },
   title: {
-    color: colors.primary,
+    fontFamily: fontFamilies.display,
+    color: colors.primaryDark,
     fontSize: typography.title,
-    lineHeight: 30,
-    textAlign: "center",
-    fontWeight: "900"
+    lineHeight: 28,
+    fontWeight: fontWeights.semibold
   },
   description: {
+    fontFamily: fontFamilies.sans,
     color: colors.text,
     fontSize: typography.body,
-    lineHeight: 24
+    lineHeight: 22
   },
   tags: {
     flexDirection: "row",

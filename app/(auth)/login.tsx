@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useMutation } from "@tanstack/react-query";
-import { Apple, LockKeyhole, MessageCircle, Search, UserRound } from "lucide-react-native";
+import { Apple, LockKeyhole, UserRound } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { AppButton } from "@/components/AppButton";
 import { AppScreen } from "@/components/AppScreen";
@@ -10,7 +10,7 @@ import { FormField } from "@/components/FormField";
 import { pageTitle, useDocumentTitle } from "@/config/environment";
 import { canShowProvider, signInWithSocialProvider, SocialProvider } from "@/services/socialAuth";
 import { useAuthStore } from "@/store/authStore";
-import { colors, radii, shadows, spacing, typography } from "@/theme";
+import { colors, fontFamilies, fontWeights, radii, spacing, typography } from "@/theme";
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -43,7 +43,7 @@ export default function LoginScreen() {
   return (
     <AppScreen scroll padded={false}>
       <View style={styles.hero}>
-        <Image source={require("../../assets/images/Logo.png")} style={styles.logo} resizeMode="contain" />
+        <Text style={styles.logo}>POP!</Text>
         <Text style={styles.environmentTitle}>{pageTitle("POP")}</Text>
         <Text style={styles.welcome}>{t("welcome")}</Text>
         <Text style={styles.subtitle}>Proposez la politique que vous souhaitez en votant et lançant vos référendums.</Text>
@@ -80,10 +80,7 @@ export default function LoginScreen() {
         <Text style={styles.socialTitle}>{t("connectWith")}</Text>
         <View style={styles.socialRow}>
           <Pressable style={styles.socialButton} onPress={() => socialMutation.mutate("google")}>
-            <Search color={colors.primary} size={24} />
-          </Pressable>
-          <Pressable style={styles.socialButton} onPress={() => socialMutation.mutate("facebook")}>
-            <MessageCircle color={colors.primary} size={24} />
+            <Text style={styles.socialInitial}>G</Text>
           </Pressable>
           <AppleProviderButton onPress={() => socialMutation.mutate("apple")} />
         </View>
@@ -109,48 +106,58 @@ const styles = StyleSheet.create({
   hero: {
     backgroundColor: colors.primary,
     alignItems: "center",
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.lg,
-    paddingHorizontal: spacing.lg
+    paddingTop: 44,
+    paddingBottom: 36,
+    paddingHorizontal: spacing.lg,
+    borderBottomLeftRadius: spacing.lg,
+    borderBottomRightRadius: spacing.lg
   },
   logo: {
-    width: 150,
-    height: 120
+    color: "#fff",
+    fontFamily: fontFamilies.display,
+    fontSize: 56,
+    lineHeight: 58,
+    fontWeight: fontWeights.black,
+    letterSpacing: 0
   },
   welcome: {
+    fontFamily: fontFamilies.display,
     color: "#fff",
-    fontSize: 30,
-    lineHeight: 36,
-    fontWeight: "900"
+    fontSize: typography.h1,
+    lineHeight: 32,
+    fontWeight: fontWeights.semibold,
+    marginTop: spacing.lg
   },
   environmentTitle: {
+    fontFamily: fontFamilies.sans,
     color: "#fff",
-    fontSize: typography.title,
-    lineHeight: 30,
-    fontWeight: "900",
+    fontSize: typography.small,
+    lineHeight: 18,
+    fontWeight: fontWeights.semibold,
+    opacity: 0.86,
     marginBottom: spacing.xs
   },
   subtitle: {
+    fontFamily: fontFamilies.sans,
     color: "#fff",
     textAlign: "center",
     marginTop: spacing.sm,
     fontSize: typography.body,
-    lineHeight: 22
+    lineHeight: 21,
+    opacity: 0.88
   },
   form: {
-    margin: spacing.md,
-    padding: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.lg,
     gap: spacing.md,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    ...shadows.sm
+    backgroundColor: colors.surface
   },
   sectionTitle: {
-    color: colors.primary,
+    fontFamily: fontFamilies.sans,
+    color: colors.text,
     fontSize: typography.subtitle,
-    fontWeight: "900",
+    fontWeight: fontWeights.semibold,
     textAlign: "center"
   },
   links: {
@@ -160,12 +167,14 @@ const styles = StyleSheet.create({
   },
   link: {
     color: colors.primary,
-    fontWeight: "800"
+    fontFamily: fontFamilies.sans,
+    fontWeight: fontWeights.semibold
   },
   socialTitle: {
     color: colors.muted,
+    fontFamily: fontFamilies.sans,
     textAlign: "center",
-    fontWeight: "700"
+    fontWeight: fontWeights.medium
   },
   socialRow: {
     flexDirection: "row",
@@ -181,5 +190,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center"
+  },
+  socialInitial: {
+    color: colors.primary,
+    fontFamily: fontFamilies.sans,
+    fontSize: typography.subtitle,
+    fontWeight: fontWeights.bold
   }
 });

@@ -1,8 +1,8 @@
 import { router } from "expo-router";
 import { ChevronLeft, Plus, Settings } from "lucide-react-native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { pageTitle, useDocumentTitle } from "@/config/environment";
-import { colors, radii, spacing, typography } from "@/theme";
+import { environmentLabel, useDocumentTitle } from "@/config/environment";
+import { colors, fontFamilies, fontWeights, radii, spacing, typography } from "@/theme";
 
 type HeaderProps = {
   title?: string;
@@ -13,23 +13,25 @@ type HeaderProps = {
 };
 
 export function Header({ title = "POP", back = false, settings = true, create = true, homeLink = true }: HeaderProps) {
-  const displayTitle = pageTitle(title);
   useDocumentTitle(title);
   const titleNode = (
-    <Text style={styles.title} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.68}>
-      {displayTitle}
-    </Text>
+    <View style={styles.titleRow}>
+      <Text style={styles.title} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72}>
+        {title.replace(/!$/, "")}
+      </Text>
+      <Text style={styles.badge}>{environmentLabel}</Text>
+    </View>
   );
   return (
     <View style={styles.root}>
       <View style={styles.slot}>
         {back ? (
           <Pressable style={styles.iconButton} onPress={() => router.back()}>
-            <ChevronLeft color={colors.primary} size={26} />
+            <ChevronLeft color={colors.gray700} size={24} />
           </Pressable>
         ) : settings ? (
           <Pressable style={styles.iconButton} onPress={() => router.push("/settings")}>
-            <Settings color={colors.primary} size={22} />
+            <Settings color={colors.gray700} size={20} />
           </Pressable>
         ) : null}
       </View>
@@ -37,7 +39,7 @@ export function Header({ title = "POP", back = false, settings = true, create = 
       <View style={[styles.slot, styles.rightSlot]}>
         {create ? (
           <Pressable style={styles.iconButton} onPress={() => router.push("/create-question")}>
-            <Plus color={colors.primary} size={24} />
+            <Plus color={colors.gray700} size={22} />
           </Pressable>
         ) : null}
       </View>
@@ -47,13 +49,13 @@ export function Header({ title = "POP", back = false, settings = true, create = 
 
 const styles = StyleSheet.create({
   root: {
-    minHeight: 60,
+    minHeight: 52,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: "rgba(255,255,255,0.92)",
     paddingHorizontal: spacing.sm
   },
   slot: {
@@ -64,12 +66,12 @@ const styles = StyleSheet.create({
     alignItems: "flex-end"
   },
   iconButton: {
-    width: 42,
-    height: 42,
+    width: 36,
+    height: 36,
     borderRadius: radii.md,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.primarySoft
+    backgroundColor: colors.gray100
   },
   titleButton: {
     flex: 1,
@@ -77,10 +79,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm
   },
   title: {
-    color: colors.primary,
-    fontSize: typography.title,
-    fontWeight: "900",
+    fontFamily: fontFamilies.display,
+    color: colors.primaryDark,
+    fontSize: typography.subtitle,
+    fontWeight: fontWeights.bold,
     letterSpacing: 0,
-    lineHeight: 30
+    lineHeight: 24,
+    flexShrink: 1
+  },
+  titleRow: {
+    maxWidth: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6
+  },
+  badge: {
+    flexShrink: 0,
+    overflow: "hidden",
+    borderRadius: 4,
+    backgroundColor: colors.gray100,
+    color: colors.muted,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    fontFamily: fontFamilies.sans,
+    fontSize: typography.micro,
+    fontWeight: fontWeights.semibold,
+    letterSpacing: 0.6
   }
 });

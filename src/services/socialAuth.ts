@@ -4,7 +4,7 @@ import { Platform } from "react-native";
 
 WebBrowser.maybeCompleteAuthSession();
 
-export type SocialProvider = "google" | "facebook" | "apple";
+export type SocialProvider = "google" | "apple";
 
 export async function canShowProvider(provider: SocialProvider) {
   if (provider === "apple") {

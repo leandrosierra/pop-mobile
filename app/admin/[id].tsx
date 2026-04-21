@@ -3,13 +3,14 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { AppButton } from "@/components/AppButton";
+import { AppCard } from "@/components/AppCard";
 import { AppScreen } from "@/components/AppScreen";
 import { Chip } from "@/components/Chip";
 import { ErrorState, LoadingState } from "@/components/Feedback";
 import { Header } from "@/components/Header";
 import { popApi } from "@/api/pop";
 import { useAuthStore } from "@/store/authStore";
-import { colors, radii, shadows, spacing, typography } from "@/theme";
+import { colors, fontFamilies, fontWeights, spacing, typography } from "@/theme";
 
 type AdminStatus = "ACTIVE" | "DRAFT" | "IDLE";
 
@@ -44,7 +45,7 @@ export default function AdminQuestionScreen() {
   return (
     <AppScreen scroll>
       <Header title={t("admin")} back create={false} settings={false} homeLink={false} />
-      <View style={styles.content}>
+      <AppCard style={styles.content}>
         <Text style={styles.title}>{detail.questionTitle}</Text>
         <Text style={styles.description}>{detail.questionDesc}</Text>
         <View style={styles.tags}>
@@ -56,7 +57,7 @@ export default function AdminQuestionScreen() {
           <AppButton label={t("flip")} variant="secondary" loading={statusMutation.isPending} onPress={() => statusMutation.mutate("DRAFT")} />
           <AppButton label={t("toRefuse")} variant="danger" loading={statusMutation.isPending} onPress={() => statusMutation.mutate("IDLE")} />
         </View>
-      </View>
+      </AppCard>
     </AppScreen>
   );
 }
@@ -64,22 +65,17 @@ export default function AdminQuestionScreen() {
 const styles = StyleSheet.create({
   content: {
     gap: spacing.md,
-    marginTop: spacing.md,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    padding: spacing.lg,
-    ...shadows.sm
+    marginTop: spacing.md
   },
   title: {
-    color: colors.primary,
+    fontFamily: fontFamilies.display,
+    color: colors.primaryDark,
     fontSize: typography.title,
-    lineHeight: 30,
-    textAlign: "center",
-    fontWeight: "900"
+    lineHeight: 28,
+    fontWeight: fontWeights.semibold
   },
   description: {
+    fontFamily: fontFamilies.sans,
     color: colors.text,
     fontSize: typography.body,
     lineHeight: 23

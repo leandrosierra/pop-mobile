@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { QuestionStats } from "@/domain/schemas";
-import { colors, radii, spacing, typography } from "@/theme";
+import { colors, fontFamilies, fontWeights, radii, spacing, typography } from "@/theme";
 
 type ResultBarsProps = {
   stats: QuestionStats;
@@ -12,7 +12,7 @@ export function ResultBars({ stats }: ResultBarsProps) {
   const total = stats.yes + stats.no + stats.neutral;
   const rows = [
     { label: t("no"), value: stats.no, color: colors.danger },
-    { label: t("noOpinion"), value: stats.neutral, color: colors.yellow },
+    { label: t("noOpinion"), value: stats.neutral, color: colors.voteNeutral },
     { label: t("yes"), value: stats.yes, color: colors.green }
   ];
 
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     backgroundColor: colors.surface,
     padding: spacing.md
   },
@@ -54,19 +54,21 @@ const styles = StyleSheet.create({
     gap: spacing.md
   },
   label: {
+    fontFamily: fontFamilies.sans,
     color: colors.text,
     fontSize: typography.small,
-    fontWeight: "800"
+    fontWeight: fontWeights.semibold
   },
   value: {
+    fontFamily: fontFamilies.sans,
     color: colors.muted,
     fontSize: typography.small,
-    fontWeight: "800"
+    fontWeight: fontWeights.semibold
   },
   track: {
-    height: 12,
-    borderRadius: radii.sm,
-    backgroundColor: "#e6ebf5",
+    height: 8,
+    borderRadius: radii.full,
+    backgroundColor: colors.gray100,
     overflow: "hidden"
   },
   fill: {

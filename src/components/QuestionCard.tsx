@@ -9,9 +9,9 @@ import {
   View
 } from "react-native";
 import { useTranslation } from "react-i18next";
-import { Info } from "lucide-react-native";
+import { Check, Info, Minus, X } from "lucide-react-native";
 import { PopQuestion } from "@/domain/schemas";
-import { colors, radii, shadows, spacing, typography } from "@/theme";
+import { colors, fontFamilies, fontWeights, radii, shadows, spacing, typography } from "@/theme";
 
 type AnswerType = "YES" | "NO" | "NEUTRAL";
 
@@ -24,6 +24,7 @@ type QuestionCardProps = {
 
 export function QuestionCard({ question, color, onAnswer, onMoreInfo }: QuestionCardProps) {
   const { t } = useTranslation();
+  const accent = color || colors.orange;
   const position = useRef(new Animated.ValueXY()).current;
   const [dragging, setDragging] = useState(false);
 
@@ -81,7 +82,7 @@ export function QuestionCard({ question, color, onAnswer, onMoreInfo }: Question
         {...panResponder.panHandlers}
         style={[
           styles.card,
-          { backgroundColor: color },
+          { backgroundColor: accent },
           {
             transform: [
               { translateX: position.x },
@@ -98,19 +99,22 @@ export function QuestionCard({ question, color, onAnswer, onMoreInfo }: Question
         <Text style={styles.title} adjustsFontSizeToFit minimumFontScale={0.78}>{question.questionTitle}</Text>
         {question.questionDesc ? <Text style={styles.description} numberOfLines={3}>{question.questionDesc}</Text> : null}
         <Pressable style={styles.moreButton} onPress={onMoreInfo}>
-          <Info color={color} size={18} />
-          <Text style={[styles.moreLabel, { color }]}>{t("moreInfo")}</Text>
+          <Info color={accent} size={16} />
+          <Text style={[styles.moreLabel, { color: accent }]}>{t("moreInfo")}</Text>
         </Pressable>
       </Animated.View>
       <View style={styles.actions}>
-        <Pressable style={[styles.roundButton, { backgroundColor: color }]} onPress={() => commitAnswer("NO")}>
-          <Text style={styles.roundLabel}>{t("no")}</Text>
+        <Pressable style={[styles.voteButton, styles.voteNo]} onPress={() => commitAnswer("NO")}>
+          <View style={[styles.voteIcon, styles.noIcon]}><X color="#fff" size={16} strokeWidth={2.4} /></View>
+          <Text style={styles.voteLabel}>{t("no")}</Text>
         </Pressable>
-        <Pressable style={[styles.roundButton, { backgroundColor: color }]} onPress={() => commitAnswer("NEUTRAL")}>
-          <Text style={styles.smallRoundLabel}>{t("noOpinion")}</Text>
+        <Pressable style={[styles.voteButton, styles.voteNeutral]} onPress={() => commitAnswer("NEUTRAL")}>
+          <View style={[styles.voteIcon, styles.neutralIcon]}><Minus color="#fff" size={16} strokeWidth={2.4} /></View>
+          <Text style={styles.voteLabel}>{t("noOpinion")}</Text>
         </Pressable>
-        <Pressable style={[styles.roundButton, { backgroundColor: color }]} onPress={() => commitAnswer("YES")}>
-          <Text style={styles.roundLabel}>{t("yes")}</Text>
+        <Pressable style={[styles.voteButton, styles.voteYes]} onPress={() => commitAnswer("YES")}>
+          <View style={[styles.voteIcon, styles.yesIcon]}><Check color="#fff" size={16} strokeWidth={2.4} /></View>
+          <Text style={styles.voteLabel}>{t("yes")}</Text>
         </Pressable>
       </View>
     </View>
@@ -121,15 +125,15 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
     justifyContent: "center",
-    gap: spacing.lg
+    gap: spacing.md
   },
   card: {
-    minHeight: 380,
-    borderRadius: radii.md,
-    padding: spacing.lg,
-    alignItems: "center",
+    minHeight: 330,
+    borderRadius: radii.xxl,
+    padding: 22,
     justifyContent: "space-between",
-    ...shadows.md
+    overflow: "hidden",
+    ...shadows.lg
   },
   dragging: {
     opacity: 0.96
@@ -139,28 +143,32 @@ const styles = StyleSheet.create({
     alignItems: "flex-end"
   },
   creator: {
+    fontFamily: fontFamilies.sans,
     color: "#fff",
-    fontWeight: "800",
+    fontSize: typography.tiny,
+    fontWeight: fontWeights.semibold,
     opacity: 0.92
   },
   title: {
+    fontFamily: fontFamilies.display,
     color: "#fff",
-    textAlign: "center",
-    fontSize: 31,
-    lineHeight: 37,
-    fontWeight: "900"
+    fontSize: typography.h1,
+    lineHeight: 31,
+    fontWeight: fontWeights.bold,
+    letterSpacing: 0
   },
   description: {
+    fontFamily: fontFamilies.sans,
     color: "#fff",
-    textAlign: "center",
     fontSize: typography.body,
     lineHeight: 21,
-    fontWeight: "700",
+    fontWeight: fontWeights.medium,
     opacity: 0.9
   },
   moreButton: {
-    minHeight: 48,
-    borderRadius: radii.md,
+    alignSelf: "flex-start",
+    minHeight: 40,
+    borderRadius: radii.full,
     backgroundColor: "#fff",
     flexDirection: "row",
     alignItems: "center",
@@ -168,31 +176,57 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md
   },
   moreLabel: {
-    fontWeight: "900"
+    fontFamily: fontFamilies.sans,
+    fontSize: typography.small,
+    fontWeight: fontWeights.semibold
   },
   actions: {
     flexDirection: "row",
-    justifyContent: "space-around",
     gap: spacing.sm
   },
-  roundButton: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
+  voteButton: {
+    flex: 1,
+    minHeight: 78,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center",
+    gap: 5,
     ...shadows.sm
   },
-  roundLabel: {
-    color: "#fff",
-    fontSize: 22,
-    fontWeight: "900"
+  voteNo: {
+    borderColor: colors.dangerSoft
   },
-  smallRoundLabel: {
-    color: "#fff",
-    fontSize: 13,
+  voteNeutral: {
+    borderColor: colors.gray200
+  },
+  voteYes: {
+    borderColor: colors.greenSoft
+  },
+  voteIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: radii.full,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  noIcon: {
+    backgroundColor: colors.voteNo
+  },
+  neutralIcon: {
+    backgroundColor: colors.voteNeutral
+  },
+  yesIcon: {
+    backgroundColor: colors.voteYes
+  },
+  voteLabel: {
+    color: colors.text,
+    fontFamily: fontFamilies.sans,
+    fontSize: typography.small,
     textAlign: "center",
-    fontWeight: "900",
+    fontWeight: fontWeights.semibold,
     paddingHorizontal: spacing.xs
   }
 });

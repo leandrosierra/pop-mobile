@@ -1,5 +1,5 @@
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { colors, radii, shadows, spacing, typography } from "@/theme";
+import { colors, fontFamilies, fontWeights, radii, shadows, spacing, typography } from "@/theme";
 
 export function LoadingState({ label }: { label: string }) {
   return (
@@ -37,23 +37,25 @@ const styles = StyleSheet.create({
     padding: spacing.lg
   },
   title: {
+    fontFamily: fontFamilies.sans,
     color: colors.text,
     textAlign: "center",
     fontSize: typography.subtitle,
     lineHeight: 24,
-    fontWeight: "800"
+    fontWeight: fontWeights.semibold
   },
   text: {
+    fontFamily: fontFamilies.sans,
     color: colors.muted,
     textAlign: "center",
-    fontWeight: "700"
+    fontWeight: fontWeights.medium
   },
   error: {
     color: colors.danger
   },
   panel: {
     width: "100%",
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,

@@ -4,6 +4,7 @@ import { router } from "expo-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { AppButton } from "@/components/AppButton";
+import { AppCard } from "@/components/AppCard";
 import { AppScreen } from "@/components/AppScreen";
 import { Chip } from "@/components/Chip";
 import { FormField } from "@/components/FormField";
@@ -11,7 +12,7 @@ import { Header } from "@/components/Header";
 import { popApi } from "@/api/pop";
 import { PopInterest, PopLocation } from "@/domain/schemas";
 import { useAuthStore } from "@/store/authStore";
-import { colors, radii, shadows, spacing, typography } from "@/theme";
+import { colors, fontFamilies, fontWeights, spacing, typography } from "@/theme";
 
 export default function CreateQuestionScreen() {
   const { t } = useTranslation();
@@ -76,7 +77,7 @@ export default function CreateQuestionScreen() {
   return (
     <AppScreen scroll>
       <Header title={t("createNewQuestion")} create={false} settings={false} />
-      <View style={styles.form}>
+      <AppCard style={styles.form}>
         <Text style={styles.title}>{t("proposeReferendumHere")}</Text>
         <FormField label={t("questionTitle")} value={questionTitle} onChangeText={setQuestionTitle} placeholder={t("questionTitle")} maxLength={120} multiline />
         <FormField label={t("questionDescription")} value={questionDesc} onChangeText={setQuestionDesc} placeholder={t("questionDescription")} multiline />
@@ -106,8 +107,8 @@ export default function CreateQuestionScreen() {
           ))}
         </View>
         {formError ? <Text style={styles.helper}>{formError}</Text> : null}
-        <AppButton label={t("save")} loading={saveMutation.isPending} disabled={Boolean(formError)} onPress={() => saveMutation.mutate()} />
-      </View>
+        <AppButton label={t("save")} size="lg" loading={saveMutation.isPending} disabled={Boolean(formError)} onPress={() => saveMutation.mutate()} />
+      </AppCard>
     </AppScreen>
   );
 }
@@ -115,24 +116,19 @@ export default function CreateQuestionScreen() {
 const styles = StyleSheet.create({
   form: {
     gap: spacing.md,
-    marginTop: spacing.md,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    padding: spacing.lg,
-    ...shadows.sm
+    marginTop: spacing.md
   },
   title: {
-    color: colors.primary,
+    fontFamily: fontFamilies.display,
+    color: colors.primaryDark,
     fontSize: typography.title,
-    fontWeight: "900",
-    textAlign: "center"
+    fontWeight: fontWeights.semibold
   },
   section: {
+    fontFamily: fontFamilies.sans,
     color: colors.primary,
     fontSize: typography.body,
-    fontWeight: "900"
+    fontWeight: fontWeights.semibold
   },
   chipWrap: {
     flexDirection: "row",
@@ -140,7 +136,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm
   },
   helper: {
+    fontFamily: fontFamilies.sans,
     color: colors.muted,
-    fontWeight: "700"
+    fontWeight: fontWeights.medium
   }
 });

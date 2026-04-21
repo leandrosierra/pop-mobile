@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { StyleSheet, Text, TextInput, TextInputProps, View } from "react-native";
-import { colors, radii, spacing, typography } from "@/theme";
+import { colors, fontFamilies, fontWeights, radii, spacing, typography } from "@/theme";
 
 type FormFieldProps = TextInputProps & {
   label?: string;
@@ -10,15 +10,24 @@ type FormFieldProps = TextInputProps & {
 };
 
 export function FormField({ label, helper, error, icon, multiline, style, ...props }: FormFieldProps) {
+  const [focused, setFocused] = useState(false);
   return (
     <View style={styles.root}>
       {label ? <Text style={styles.label}>{label}</Text> : null}
-      <View style={[styles.inputShell, multiline && styles.multilineShell, error && styles.errorShell]}>
+      <View style={[styles.inputShell, multiline && styles.multilineShell, focused && styles.focusedShell, error && styles.errorShell]}>
         {icon ? <View style={styles.icon}>{icon}</View> : null}
         <TextInput
           {...props}
           multiline={multiline}
           placeholderTextColor={colors.subtle}
+          onFocus={(event) => {
+            setFocused(true);
+            props.onFocus?.(event);
+          }}
+          onBlur={(event) => {
+            setFocused(false);
+            props.onBlur?.(event);
+          }}
           style={[styles.input, multiline && styles.multilineInput, style]}
         />
       </View>
@@ -32,12 +41,13 @@ const styles = StyleSheet.create({
     gap: spacing.xs
   },
   label: {
+    fontFamily: fontFamilies.sans,
     color: colors.text,
     fontSize: typography.small,
-    fontWeight: "800"
+    fontWeight: fontWeights.semibold
   },
   inputShell: {
-    minHeight: 52,
+    minHeight: 48,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radii.md,
@@ -46,8 +56,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: spacing.md
   },
+  focusedShell: {
+    borderColor: colors.primary,
+    backgroundColor: colors.surface
+  },
   multilineShell: {
-    minHeight: 128,
+    minHeight: 104,
     alignItems: "flex-start",
     paddingVertical: spacing.sm
   },
@@ -60,23 +74,26 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    minHeight: 48,
+    minHeight: 46,
+    fontFamily: fontFamilies.sans,
     color: colors.text,
     fontSize: typography.body,
     outlineStyle: "none" as never
   },
   multilineInput: {
-    minHeight: 108,
+    minHeight: 88,
     textAlignVertical: "top"
   },
   helper: {
+    fontFamily: fontFamilies.sans,
     color: colors.muted,
     fontSize: typography.tiny,
-    fontWeight: "600"
+    fontWeight: fontWeights.medium
   },
   error: {
+    fontFamily: fontFamilies.sans,
     color: colors.danger,
     fontSize: typography.tiny,
-    fontWeight: "800"
+    fontWeight: fontWeights.semibold
   }
 });

@@ -9,12 +9,13 @@ import {
   View,
   ViewStyle
 } from "react-native";
-import { colors, radii, spacing, typography } from "@/theme";
+import { colors, fontFamilies, fontWeights, radii, spacing, typography } from "@/theme";
 
 type AppButtonProps = Omit<PressableProps, "style"> & {
   label: string;
   icon?: ReactNode;
-  variant?: "primary" | "secondary" | "danger" | "ghost";
+  variant?: "primary" | "secondary" | "danger" | "ghost" | "accent";
+  size?: "sm" | "md" | "lg";
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
 };
@@ -23,6 +24,7 @@ export function AppButton({
   label,
   icon,
   variant = "primary",
+  size = "md",
   loading = false,
   disabled,
   style,
@@ -36,13 +38,14 @@ export function AppButton({
       style={({ pressed }) => [
         styles.base,
         styles[variant],
+        styles[size],
         isDisabled && styles.disabled,
         pressed && !isDisabled && styles.pressed,
         style
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "primary" || variant === "danger" ? "#fff" : colors.primary} />
+        <ActivityIndicator color={variant === "primary" || variant === "danger" || variant === "accent" ? "#fff" : colors.primary} />
       ) : (
         <View style={styles.content}>
           {icon}
@@ -55,13 +58,27 @@ export function AppButton({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 48,
+    minHeight: 46,
     borderRadius: radii.md,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    borderWidth: 1,
     flexShrink: 0
+  },
+  sm: {
+    minHeight: 36,
+    borderRadius: radii.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm
+  },
+  md: {},
+  lg: {
+    minHeight: 52,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: 14
   },
   content: {
     flexDirection: "row",
@@ -70,13 +87,13 @@ const styles = StyleSheet.create({
     gap: spacing.sm
   },
   label: {
+    fontFamily: fontFamilies.sans,
     fontSize: typography.body,
-    fontWeight: "800",
+    fontWeight: fontWeights.semibold,
     textAlign: "center"
   },
   primary: {
     backgroundColor: colors.primary,
-    borderWidth: 1,
     borderColor: colors.primary
   },
   primaryLabel: {
@@ -84,23 +101,27 @@ const styles = StyleSheet.create({
   },
   secondary: {
     backgroundColor: colors.surface,
-    borderWidth: 1,
     borderColor: colors.border
   },
   secondaryLabel: {
-    color: colors.primary
+    color: colors.text
   },
   danger: {
     backgroundColor: colors.danger,
-    borderWidth: 1,
     borderColor: colors.danger
   },
   dangerLabel: {
     color: "#fff"
   },
+  accent: {
+    backgroundColor: colors.orange,
+    borderColor: colors.orange
+  },
+  accentLabel: {
+    color: "#fff"
+  },
   ghost: {
     backgroundColor: "transparent",
-    borderWidth: 1,
     borderColor: "transparent"
   },
   ghostLabel: {
@@ -110,6 +131,7 @@ const styles = StyleSheet.create({
     opacity: 0.55
   },
   pressed: {
-    opacity: 0.82
+    opacity: 0.88,
+    transform: [{ scale: 0.985 }]
   }
 });

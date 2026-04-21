@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { KeyRound, LogOut, Trash2 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { AppButton } from "@/components/AppButton";
+import { AppCard } from "@/components/AppCard";
 import { AppScreen } from "@/components/AppScreen";
 import { Chip } from "@/components/Chip";
 import { ErrorState, LoadingState } from "@/components/Feedback";
@@ -12,7 +13,7 @@ import { FormField } from "@/components/FormField";
 import { Header } from "@/components/Header";
 import { popApi } from "@/api/pop";
 import { useAuthStore } from "@/store/authStore";
-import { colors, radii, shadows, spacing, typography } from "@/theme";
+import { colors, fontFamilies, fontWeights, spacing, typography } from "@/theme";
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
@@ -62,11 +63,11 @@ export default function SettingsScreen() {
   return (
     <AppScreen scroll>
       <Header title={t("settings")} create={false} settings={false} />
-      <View style={styles.profile}>
+      <AppCard style={styles.profile}>
         <Text style={styles.name}>{user.name}</Text>
         <Text style={styles.email}>{user.email}</Text>
         <Text style={styles.role}>{user.role}</Text>
-      </View>
+      </AppCard>
 
       <Text style={styles.section}>{t("geographicalLocations")}</Text>
       <View style={styles.chipWrap}>
@@ -84,7 +85,7 @@ export default function SettingsScreen() {
         <Chip label={t("add")} onPress={() => router.push("/setup/interests")} />
       </View>
 
-      <View style={styles.passwordBox}>
+      <AppCard style={styles.passwordBox}>
         <Text style={styles.section}>{t("changeMyPassword")}</Text>
         <FormField value={password} onChangeText={setPassword} placeholder={t("password")} secureTextEntry />
         <FormField value={confirmPassword} onChangeText={setConfirmPassword} placeholder={t("password")} secureTextEntry />
@@ -96,7 +97,7 @@ export default function SettingsScreen() {
           loading={passwordMutation.isPending}
           onPress={() => passwordMutation.mutate()}
         />
-      </View>
+      </AppCard>
 
       <View style={styles.actions}>
         <AppButton
@@ -126,31 +127,29 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.xs,
     marginTop: spacing.md,
-    marginBottom: spacing.md,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    padding: spacing.lg,
-    ...shadows.sm
+    marginBottom: spacing.md
   },
   name: {
-    color: colors.primary,
+    fontFamily: fontFamilies.display,
+    color: colors.primaryDark,
     fontSize: typography.title,
-    fontWeight: "900"
+    fontWeight: fontWeights.bold
   },
   email: {
+    fontFamily: fontFamilies.sans,
     color: colors.muted,
-    fontWeight: "700"
+    fontWeight: fontWeights.medium
   },
   role: {
+    fontFamily: fontFamilies.sans,
     color: colors.primary,
-    fontWeight: "800"
+    fontWeight: fontWeights.semibold
   },
   section: {
+    fontFamily: fontFamilies.sans,
     color: colors.primary,
     fontSize: typography.body,
-    fontWeight: "900",
+    fontWeight: fontWeights.semibold,
     marginTop: spacing.md
   },
   chipWrap: {
@@ -161,16 +160,12 @@ const styles = StyleSheet.create({
   },
   passwordBox: {
     gap: spacing.sm,
-    marginTop: spacing.lg,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    padding: spacing.md
+    marginTop: spacing.lg
   },
   error: {
     color: colors.danger,
-    fontWeight: "800"
+    fontFamily: fontFamilies.sans,
+    fontWeight: fontWeights.semibold
   },
   actions: {
     gap: spacing.sm,

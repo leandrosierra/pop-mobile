@@ -1,7 +1,7 @@
 import { Tabs } from "expo-router";
 import { CirclePlus, Home, ListChecks, Settings } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { colors, typography } from "@/theme";
+import { colors, fontFamilies, fontWeights, typography } from "@/theme";
 
 export default function AppTabsLayout() {
   const { t } = useTranslation();
@@ -12,13 +12,14 @@ export default function AppTabsLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.muted,
         tabBarLabelStyle: {
-          fontSize: typography.tiny,
-          fontWeight: "800"
+          fontFamily: fontFamilies.sans,
+          fontSize: typography.micro,
+          fontWeight: fontWeights.medium
         },
         tabBarStyle: {
-          minHeight: 62,
+          minHeight: 64,
           borderTopColor: colors.border,
-          backgroundColor: colors.surface
+          backgroundColor: "rgba(255,255,255,0.94)"
         },
         tabBarItemStyle: {
           paddingVertical: 6

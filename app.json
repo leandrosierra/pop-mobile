@@ -18,7 +18,7 @@
       "package": "com.lsi.pop",
       "adaptiveIcon": {
         "foregroundImage": "./assets/icons/app_icon_square.png",
-        "backgroundColor": "#1761cc"
+        "backgroundColor": "#2f63ea"
       }
     },
     "web": {

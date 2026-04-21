@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text } from "react-native";
 import { router } from "expo-router";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { AppButton } from "@/components/AppButton";
+import { AppCard } from "@/components/AppCard";
 import { AppScreen } from "@/components/AppScreen";
 import { FormField } from "@/components/FormField";
 import { Header } from "@/components/Header";
 import { useAuthStore } from "@/store/authStore";
-import { colors, radii, shadows, spacing, typography } from "@/theme";
+import { colors, fontFamilies, fontWeights, spacing, typography } from "@/theme";
 
 const emailSchema = z.string().email();
 
@@ -41,7 +42,7 @@ export default function ForgotPasswordScreen() {
   return (
     <AppScreen scroll>
       <Header back create={false} settings={false} homeLink={false} />
-      <View style={styles.form}>
+      <AppCard style={styles.form}>
         <Text style={styles.title}>{t("forgotPassword")}</Text>
         <FormField
           label={t("yourEmailAddress")}
@@ -53,7 +54,7 @@ export default function ForgotPasswordScreen() {
           error={error}
         />
         <AppButton label={t("resetPassword")} loading={mutation.isPending} onPress={submit} />
-      </View>
+      </AppCard>
     </AppScreen>
   );
 }
@@ -61,18 +62,12 @@ export default function ForgotPasswordScreen() {
 const styles = StyleSheet.create({
   form: {
     gap: spacing.md,
-    marginTop: spacing.lg,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    padding: spacing.lg,
-    ...shadows.sm
+    marginTop: spacing.lg
   },
   title: {
-    color: colors.primary,
+    fontFamily: fontFamilies.display,
+    color: colors.primaryDark,
     fontSize: typography.title,
-    fontWeight: "900",
-    textAlign: "center"
+    fontWeight: fontWeights.semibold
   }
 });

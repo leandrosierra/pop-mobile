@@ -1,6 +1,6 @@
 import { X } from "lucide-react-native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, radii, spacing, typography } from "@/theme";
+import { colors, fontFamilies, fontWeights, radii, spacing, typography } from "@/theme";
 
 type ChipProps = {
   label: string;
@@ -30,9 +30,9 @@ export function Chip({ label, selected = false, onPress, onRemove }: ChipProps) 
 
 const styles = StyleSheet.create({
   root: {
-    minHeight: 36,
+    minHeight: 32,
     maxWidth: "100%",
-    borderRadius: radii.md,
+    borderRadius: radii.full,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
@@ -40,16 +40,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.xs,
     paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs
+    paddingVertical: 6
   },
   selected: {
     backgroundColor: colors.primary,
     borderColor: colors.primary
   },
   label: {
+    fontFamily: fontFamilies.sans,
     color: colors.text,
     fontSize: typography.small,
-    fontWeight: "700",
+    fontWeight: fontWeights.medium,
     flexShrink: 1,
     lineHeight: 18
   },
