@@ -7,6 +7,7 @@ import { popApi } from "@/api/pop";
 import { AppButton } from "@/components/AppButton";
 import { EmptyState, ErrorState, LoadingState } from "@/components/Feedback";
 import { FormField } from "@/components/FormField";
+import { PaginationControls } from "@/components/PaginationControls";
 import { colors, fontFamilies, fontWeights, radii, spacing, typography } from "@/theme";
 
 type QuestionLawWorkspaceProps = {
@@ -23,10 +24,11 @@ export function QuestionLawWorkspace({ questionId, questionTitle, questionDescri
   const [exposeMotifs, setExposeMotifs] = useState(questionDescription);
   const [dispositif, setDispositif] = useState("");
   const [analyseConformite, setAnalyseConformite] = useState("");
+  const [page, setPage] = useState(0);
 
   const query = useQuery({
-    queryKey: ["question-law-proposals", questionId],
-    queryFn: () => popApi.questionLawProposals(token, questionId)
+    queryKey: ["question-law-proposals", questionId, page],
+    queryFn: () => popApi.questionLawProposalsPage(token, questionId, page)
   });
 
   const mutation = useMutation({
@@ -39,11 +41,12 @@ export function QuestionLawWorkspace({ questionId, questionTitle, questionDescri
     onSuccess: () => {
       setDispositif("");
       setAnalyseConformite("");
+      setPage(0);
       queryClient.invalidateQueries({ queryKey: ["question-law-proposals", questionId] });
     }
   });
 
-  const proposals = query.data ?? [];
+  const proposals = query.data?.content ?? [];
   const canSubmit = titre.trim().length >= 3 && exposeMotifs.trim().length >= 10 && dispositif.trim().length >= 10 && analyseConformite.trim().length >= 10;
 
   return (
@@ -88,6 +91,13 @@ export function QuestionLawWorkspace({ questionId, questionTitle, questionDescri
           </View>
         ))}
       </View>
+      <PaginationControls
+        page={page}
+        totalPages={query.data?.totalPages}
+        totalElements={query.data?.totalElements}
+        disabled={query.isFetching}
+        onPageChange={setPage}
+      />
     </View>
   );
 }

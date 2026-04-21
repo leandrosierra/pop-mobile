@@ -1,4 +1,4 @@
-import { PopAnsweredQuestion, PopQuestion, PopQuestionDetail, PopUser, QuestionStats } from "@/domain/schemas";
+import { PopAnsweredQuestion, PopLocation, PopQuestion, PopQuestionDetail, PopUser, QuestionStats } from "@/domain/schemas";
 import { normalizeTimestamp } from "@/utils/time";
 
 type BackendRole = {
@@ -236,7 +236,31 @@ export const backendLocations = [
   { id: "75056", code: "75056", label: "Paris", type: "CITY" as const },
   { id: "69123", code: "69123", label: "Lyon", type: "CITY" as const },
   { id: "13055", code: "13055", label: "Marseille", type: "CITY" as const },
-  { id: "44109", code: "44109", label: "Nantes", type: "CITY" as const }
+  { id: "44109", code: "44109", label: "Nantes", type: "CITY" as const },
+  { id: "33063", code: "33063", label: "Bordeaux", type: "CITY" as const },
+  { id: "59350", code: "59350", label: "Lille", type: "CITY" as const },
+  { id: "31555", code: "31555", label: "Toulouse", type: "CITY" as const },
+  { id: "35238", code: "35238", label: "Rennes", type: "CITY" as const },
+  { id: "67482", code: "67482", label: "Strasbourg", type: "CITY" as const },
+  { id: "75", code: "75", label: "Paris", type: "DEPARTMENT" as const },
+  { id: "69", code: "69", label: "Rhône", type: "DEPARTMENT" as const },
+  { id: "13", code: "13", label: "Bouches-du-Rhône", type: "DEPARTMENT" as const },
+  { id: "44", code: "44", label: "Loire-Atlantique", type: "DEPARTMENT" as const },
+  { id: "33", code: "33", label: "Gironde", type: "DEPARTMENT" as const },
+  { id: "59", code: "59", label: "Nord", type: "DEPARTMENT" as const },
+  { id: "31", code: "31", label: "Haute-Garonne", type: "DEPARTMENT" as const },
+  { id: "35", code: "35", label: "Ille-et-Vilaine", type: "DEPARTMENT" as const },
+  { id: "67", code: "67", label: "Bas-Rhin", type: "DEPARTMENT" as const },
+  { id: "11", code: "11", label: "Île-de-France", type: "REGION" as const },
+  { id: "84", code: "84", label: "Auvergne-Rhône-Alpes", type: "REGION" as const },
+  { id: "93", code: "93", label: "Provence-Alpes-Côte d'Azur", type: "REGION" as const },
+  { id: "52", code: "52", label: "Pays de la Loire", type: "REGION" as const },
+  { id: "75", code: "75", label: "Nouvelle-Aquitaine", type: "REGION" as const },
+  { id: "32", code: "32", label: "Hauts-de-France", type: "REGION" as const },
+  { id: "76", code: "76", label: "Occitanie", type: "REGION" as const },
+  { id: "53", code: "53", label: "Bretagne", type: "REGION" as const },
+  { id: "44", code: "44", label: "Grand Est", type: "REGION" as const },
+  { id: "FR", code: "FR", label: "France", type: "COUNTRY" as const }
 ];
 
 export function backendPageContent<T>(page: BackendPage<T>) {
@@ -267,6 +291,26 @@ const answerCodeMap: Record<string, keyof QuestionStats> = {
   NEUTRE: "neutral"
 };
 
+function mapBackendGeoChoices(choices: BackendGeoChoice[] | undefined): PopLocation[] {
+  const locations: PopLocation[] = [];
+  const seen = new Set<string>();
+  for (const choice of choices ?? []) {
+    const candidates: PopLocation[] = [
+      choice.ville ? { id: choice.ville.code || "", label: choice.ville.libelle || choice.ville.code || "", type: "CITY" } : null,
+      choice.dept ? { id: choice.dept.code || "", label: choice.dept.libelle || choice.dept.code || "", type: "DEPARTMENT" } : null,
+      choice.pays ? { id: choice.pays.code || "", label: choice.pays.libelle || choice.pays.code || "", type: "COUNTRY" } : null
+    ].filter(Boolean) as PopLocation[];
+    for (const location of candidates) {
+      const key = `${location.type}:${location.id}`;
+      if (location.id && !seen.has(key)) {
+        seen.add(key);
+        locations.push(location);
+      }
+    }
+  }
+  return locations;
+}
+
 export function mapBackendUser(user: BackendUser): PopUser {
   return {
     uid: String(user.id),
@@ -274,11 +318,7 @@ export function mapBackendUser(user: BackendUser): PopUser {
     email: user.email || "",
     language: user.parametres?.langues?.[0]?.langue?.code?.toLowerCase() || "fr",
     role: user.role?.code || "USER",
-    userChoiceGeo: (user.choixGeo ?? []).map((choice) => ({
-      id: choice.ville?.code || choice.dept?.code || choice.pays?.code || "",
-      label: choice.ville?.libelle || choice.dept?.libelle || choice.pays?.libelle || "",
-      type: choice.ville ? "CITY" : choice.dept ? "DEPARTMENT" : "COUNTRY"
-    })),
+    userChoiceGeo: mapBackendGeoChoices(user.choixGeo),
     userInterest: (user.interets ?? []).map((interest) => ({
       code: interest.interet?.code || "",
       label: interest.interet?.libelle || interest.interet?.code || "",
@@ -302,11 +342,7 @@ export function mapBackendQuestion(question: BackendQuestion): PopQuestion {
 export function mapBackendQuestionDetail(question: BackendQuestion, stats: BackendStat[]): PopQuestionDetail {
   return {
     ...mapBackendQuestion(question),
-    geoTags: (question.choixGeo ?? []).map((choice) => ({
-      id: choice.ville?.code || choice.dept?.code || choice.pays?.code || "",
-      label: choice.ville?.libelle || choice.dept?.libelle || choice.pays?.libelle || "",
-      type: choice.ville ? "CITY" : choice.dept ? "DEPARTMENT" : "COUNTRY"
-    })),
+    geoTags: mapBackendGeoChoices(question.choixGeo),
     interestTags: [],
     stats: statsForQuestion(question.id, stats)
   };

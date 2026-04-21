@@ -11,6 +11,7 @@ import { Chip } from "@/components/Chip";
 import { EmptyState, ErrorState, LoadingState } from "@/components/Feedback";
 import { FormField } from "@/components/FormField";
 import { Header } from "@/components/Header";
+import { PaginationControls } from "@/components/PaginationControls";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { SelectField, SelectOption } from "@/components/SelectField";
 import { popApi } from "@/api/pop";
@@ -228,14 +229,18 @@ function BudgetPanel() {
 function NewsPanel() {
   const { t } = useTranslation();
   const token = useAuthStore((state) => state.requireToken());
+  const [actualitesPage, setActualitesPage] = useState(0);
+  const [suggestionsPage, setSuggestionsPage] = useState(0);
   const actualitesQuery = useQuery({
-    queryKey: ["actualites"],
-    queryFn: () => popApi.actualites(token)
+    queryKey: ["actualites", actualitesPage],
+    queryFn: () => popApi.actualitesPage(token, actualitesPage)
   });
   const suggestionsQuery = useQuery({
-    queryKey: ["question-suggestions"],
-    queryFn: () => popApi.questionSuggestions(token)
+    queryKey: ["question-suggestions", suggestionsPage],
+    queryFn: () => popApi.questionSuggestionsPage(token, suggestionsPage)
   });
+  const suggestions = suggestionsQuery.data?.content ?? [];
+  const actualites = actualitesQuery.data?.content ?? [];
 
   return (
     <AppCard style={styles.panel}>
@@ -247,7 +252,7 @@ function NewsPanel() {
       {suggestionsQuery.isError || actualitesQuery.isError ? <ErrorState label={t("errorFetchingQuestionList")} /> : null}
       <Text style={styles.sectionTitle}>{t("autoQuestionSuggestions")}</Text>
       <View style={styles.compactList}>
-        {(suggestionsQuery.data ?? []).map((suggestion) => (
+        {suggestions.map((suggestion) => (
           <Pressable
             key={suggestion.id}
             style={styles.compactItem}
@@ -261,14 +266,21 @@ function NewsPanel() {
             </View>
           </Pressable>
         ))}
-        {!suggestionsQuery.isLoading && !suggestionsQuery.isError && !(suggestionsQuery.data ?? []).length ? (
+        {!suggestionsQuery.isLoading && !suggestionsQuery.isError && !suggestions.length ? (
           <EmptyState label={t("noSuggestionAvailable")} />
         ) : null}
       </View>
+      <PaginationControls
+        page={suggestionsPage}
+        totalPages={suggestionsQuery.data?.totalPages}
+        totalElements={suggestionsQuery.data?.totalElements}
+        disabled={suggestionsQuery.isFetching}
+        onPageChange={setSuggestionsPage}
+      />
 
       <Text style={styles.sectionTitle}>{t("recentNews")}</Text>
       <View style={styles.compactList}>
-        {(actualitesQuery.data ?? []).map((actualite) => (
+        {actualites.map((actualite) => (
           <View key={actualite.id} style={styles.compactItem}>
             <Text style={styles.itemTitle} numberOfLines={2}>{actualite.titre}</Text>
             <Text style={styles.itemText} numberOfLines={3}>{actualite.resume}</Text>
@@ -283,10 +295,17 @@ function NewsPanel() {
             </View>
           </View>
         ))}
-        {!actualitesQuery.isLoading && !actualitesQuery.isError && !(actualitesQuery.data ?? []).length ? (
+        {!actualitesQuery.isLoading && !actualitesQuery.isError && !actualites.length ? (
           <EmptyState label={t("noNewsAvailable")} />
         ) : null}
       </View>
+      <PaginationControls
+        page={actualitesPage}
+        totalPages={actualitesQuery.data?.totalPages}
+        totalElements={actualitesQuery.data?.totalElements}
+        disabled={actualitesQuery.isFetching}
+        onPageChange={setActualitesPage}
+      />
     </AppCard>
   );
 }
@@ -294,14 +313,18 @@ function NewsPanel() {
 function LawPanel() {
   const { t } = useTranslation();
   const token = useAuthStore((state) => state.requireToken());
+  const [incoherencesPage, setIncoherencesPage] = useState(0);
+  const [proposalsPage, setProposalsPage] = useState(0);
   const incoherencesQuery = useQuery({
-    queryKey: ["law-incoherences"],
-    queryFn: () => popApi.lawIncoherences(token)
+    queryKey: ["law-incoherences", incoherencesPage],
+    queryFn: () => popApi.lawIncoherencesPage(token, incoherencesPage)
   });
   const proposalsQuery = useQuery({
-    queryKey: ["current-user-law-proposals"],
-    queryFn: () => popApi.currentUserLawProposals(token)
+    queryKey: ["current-user-law-proposals", proposalsPage],
+    queryFn: () => popApi.currentUserLawProposalsPage(token, proposalsPage)
   });
+  const incoherences = incoherencesQuery.data?.content ?? [];
+  const proposals = proposalsQuery.data?.content ?? [];
 
   return (
     <AppCard style={styles.panel}>
@@ -313,7 +336,7 @@ function LawPanel() {
       {incoherencesQuery.isError || proposalsQuery.isError ? <ErrorState label={t("errorFetchingQuestionList")} /> : null}
       <Text style={styles.sectionTitle}>{t("lawIncoherences")}</Text>
       <View style={styles.compactList}>
-        {(incoherencesQuery.data ?? []).map((incoherence) => (
+        {incoherences.map((incoherence) => (
           <View key={incoherence.id} style={styles.compactItem}>
             <Text style={styles.itemTitle} numberOfLines={2}>{incoherence.loi?.titre || incoherence.loi?.code || t("law")}</Text>
             <Text style={styles.itemText}>{incoherence.description}</Text>
@@ -325,14 +348,21 @@ function LawPanel() {
             ) : null}
           </View>
         ))}
-        {!incoherencesQuery.isLoading && !incoherencesQuery.isError && !(incoherencesQuery.data ?? []).length ? (
+        {!incoherencesQuery.isLoading && !incoherencesQuery.isError && !incoherences.length ? (
           <EmptyState label={t("noLawIncoherence")} />
         ) : null}
       </View>
+      <PaginationControls
+        page={incoherencesPage}
+        totalPages={incoherencesQuery.data?.totalPages}
+        totalElements={incoherencesQuery.data?.totalElements}
+        disabled={incoherencesQuery.isFetching}
+        onPageChange={setIncoherencesPage}
+      />
 
       <Text style={styles.sectionTitle}>{t("myLawProposals")}</Text>
       <View style={styles.compactList}>
-        {(proposalsQuery.data ?? []).map((proposal) => (
+        {proposals.map((proposal) => (
           <Pressable
             key={proposal.id}
             style={styles.compactItem}
@@ -346,10 +376,17 @@ function LawPanel() {
             </View>
           </Pressable>
         ))}
-        {!proposalsQuery.isLoading && !proposalsQuery.isError && !(proposalsQuery.data ?? []).length ? (
+        {!proposalsQuery.isLoading && !proposalsQuery.isError && !proposals.length ? (
           <EmptyState label={t("noMyLawProposal")} />
         ) : null}
       </View>
+      <PaginationControls
+        page={proposalsPage}
+        totalPages={proposalsQuery.data?.totalPages}
+        totalElements={proposalsQuery.data?.totalElements}
+        disabled={proposalsQuery.isFetching}
+        onPageChange={setProposalsPage}
+      />
     </AppCard>
   );
 }

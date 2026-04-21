@@ -7,6 +7,7 @@ import { popApi } from "@/api/pop";
 import { AppButton } from "@/components/AppButton";
 import { EmptyState, ErrorState, LoadingState } from "@/components/Feedback";
 import { FormField } from "@/components/FormField";
+import { PaginationControls } from "@/components/PaginationControls";
 import { SelectField, SelectOption } from "@/components/SelectField";
 import { colors, fontFamilies, fontWeights, radii, spacing, typography } from "@/theme";
 
@@ -35,6 +36,7 @@ export function QuestionMeetings({ questionId, token }: QuestionMeetingsProps) {
   const [description, setDescription] = useState("");
   const [lieu, setLieu] = useState("");
   const [url, setUrl] = useState("");
+  const [page, setPage] = useState(0);
   const [dateDebut, setDateDebut] = useState(formatDateInput(new Date(Date.now() + 24 * 60 * 60 * 1000)));
   const [dateFin, setDateFin] = useState(formatDateInput(new Date(Date.now() + 25 * 60 * 60 * 1000)));
 
@@ -47,8 +49,8 @@ export function QuestionMeetings({ questionId, token }: QuestionMeetingsProps) {
   );
 
   const query = useQuery({
-    queryKey: ["question-meetings", questionId],
-    queryFn: () => popApi.questionMeetings(token, questionId)
+    queryKey: ["question-meetings", questionId, page],
+    queryFn: () => popApi.questionMeetingsPage(token, questionId, page)
   });
 
   const mutation = useMutation({
@@ -66,11 +68,12 @@ export function QuestionMeetings({ questionId, token }: QuestionMeetingsProps) {
       setDescription("");
       setLieu("");
       setUrl("");
+      setPage(0);
       queryClient.invalidateQueries({ queryKey: ["question-meetings", questionId] });
     }
   });
 
-  const meetings = query.data ?? [];
+  const meetings = query.data?.content ?? [];
   const canSubmit = titre.trim().length >= 3 && (typeMeeting === "VIRTUEL" ? url.trim().length > 0 : lieu.trim().length > 0);
 
   return (
@@ -122,6 +125,13 @@ export function QuestionMeetings({ questionId, token }: QuestionMeetingsProps) {
           </View>
         ))}
       </View>
+      <PaginationControls
+        page={page}
+        totalPages={query.data?.totalPages}
+        totalElements={query.data?.totalElements}
+        disabled={query.isFetching}
+        onPageChange={setPage}
+      />
     </View>
   );
 }

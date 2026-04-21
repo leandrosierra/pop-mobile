@@ -206,8 +206,11 @@ export const popApi = {
       () => answerQuestionOnline(token, id, responseType, method)
     );
   },
+  questionCommentsPage(token: string, id: number, page = 0) {
+    return apiRequest<BackendPage<BackendQuestionComment>>(`/discussion/question/${id}/comments`, { token, query: { page, size: 10 } });
+  },
   questionComments(token: string, id: number) {
-    return apiRequest<BackendPage<BackendQuestionComment>>(`/discussion/question/${id}/comments`, { token, query: { page: 0, size: 10 } })
+    return popApi.questionCommentsPage(token, id)
       .then(backendPageContent);
   },
   createQuestionComment(token: string, id: number, contenu: string, parentCommentId?: number) {
@@ -220,8 +223,11 @@ export const popApi = {
       })
     });
   },
+  questionMeetingsPage(token: string, id: number, page = 0) {
+    return apiRequest<BackendPage<BackendQuestionMeeting>>(`/discussion/question/${id}/meetings`, { token, query: { page, size: 10 } });
+  },
   questionMeetings(token: string, id: number) {
-    return apiRequest<BackendPage<BackendQuestionMeeting>>(`/discussion/question/${id}/meetings`, { token, query: { page: 0, size: 10 } })
+    return popApi.questionMeetingsPage(token, id)
       .then(backendPageContent);
   },
   createQuestionMeeting(token: string, id: number, meeting: CreateMeetingInput) {
@@ -231,8 +237,11 @@ export const popApi = {
       body: JSON.stringify(meeting)
     });
   },
+  budgetsForTerritoryPage(token: string, niveau: string, code: string, page = 0) {
+    return apiRequest<BackendPage<BackendBudget>>(`/budget/territoire/${niveau}/${code}`, { token, query: { page, size: 10 } });
+  },
   budgetsForTerritory(token: string, niveau: string, code: string) {
-    return apiRequest<BackendPage<BackendBudget>>(`/budget/territoire/${niveau}/${code}`, { token, query: { page: 0, size: 10 } })
+    return popApi.budgetsForTerritoryPage(token, niveau, code)
       .then(backendPageContent);
   },
   saveBudgetChoice(token: string, budgetId: number, allocations: BudgetAllocationInput[]) {
@@ -248,24 +257,39 @@ export const popApi = {
       })
     });
   },
+  actualitesPage(token: string, page = 0) {
+    return apiRequest<BackendPage<BackendActualite>>("/actualite/all", { token, query: { page, size: 10 } });
+  },
   actualites(token: string) {
-    return apiRequest<BackendPage<BackendActualite>>("/actualite/all", { token, query: { page: 0, size: 10 } })
+    return popApi.actualitesPage(token)
       .then(backendPageContent);
+  },
+  questionSuggestionsPage(token: string, page = 0) {
+    return apiRequest<BackendPage<BackendQuestionSuggestion>>("/actualite/suggestions", { token, query: { page, size: 10 } });
   },
   questionSuggestions(token: string) {
-    return apiRequest<BackendPage<BackendQuestionSuggestion>>("/actualite/suggestions", { token, query: { page: 0, size: 10 } })
+    return popApi.questionSuggestionsPage(token)
       .then(backendPageContent);
+  },
+  lawIncoherencesPage(token: string, page = 0) {
+    return apiRequest<BackendPage<BackendLoiIncoherence>>("/loi/incoherence/all", { token, query: { page, size: 10 } });
   },
   lawIncoherences(token: string) {
-    return apiRequest<BackendPage<BackendLoiIncoherence>>("/loi/incoherence/all", { token, query: { page: 0, size: 10 } })
+    return popApi.lawIncoherencesPage(token)
       .then(backendPageContent);
+  },
+  questionLawProposalsPage(token: string, id: number, page = 0) {
+    return apiRequest<BackendPage<BackendPropositionLoi>>(`/loi/proposition/question/${id}`, { token, query: { page, size: 10 } });
   },
   questionLawProposals(token: string, id: number) {
-    return apiRequest<BackendPage<BackendPropositionLoi>>(`/loi/proposition/question/${id}`, { token, query: { page: 0, size: 10 } })
+    return popApi.questionLawProposalsPage(token, id)
       .then(backendPageContent);
   },
+  currentUserLawProposalsPage(token: string, page = 0) {
+    return apiRequest<BackendPage<BackendPropositionLoi>>("/loi/proposition/user/current", { token, query: { page, size: 10 } });
+  },
   currentUserLawProposals(token: string) {
-    return apiRequest<BackendPage<BackendPropositionLoi>>("/loi/proposition/user/current", { token, query: { page: 0, size: 10 } })
+    return popApi.currentUserLawProposalsPage(token)
       .then(backendPageContent);
   },
   createLawProposal(token: string, questionId: number, proposal: LawProposalInput) {

@@ -8,6 +8,7 @@ import { BackendQuestionComment } from "@/api/backend";
 import { AppButton } from "@/components/AppButton";
 import { EmptyState, ErrorState, LoadingState } from "@/components/Feedback";
 import { FormField } from "@/components/FormField";
+import { PaginationControls } from "@/components/PaginationControls";
 import { TimestampBadge } from "@/components/TimestampBadge";
 import { colors, fontFamilies, fontWeights, radii, spacing, typography } from "@/theme";
 
@@ -20,11 +21,12 @@ export function QuestionDiscussion({ questionId, token }: QuestionDiscussionProp
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const [content, setContent] = useState("");
+  const [page, setPage] = useState(0);
   const [replyTo, setReplyTo] = useState<BackendQuestionComment | null>(null);
 
   const query = useQuery({
-    queryKey: ["question-comments", questionId],
-    queryFn: () => popApi.questionComments(token, questionId)
+    queryKey: ["question-comments", questionId, page],
+    queryFn: () => popApi.questionCommentsPage(token, questionId, page)
   });
 
   const mutation = useMutation({
@@ -32,11 +34,12 @@ export function QuestionDiscussion({ questionId, token }: QuestionDiscussionProp
     onSuccess: () => {
       setContent("");
       setReplyTo(null);
+      setPage(0);
       queryClient.invalidateQueries({ queryKey: ["question-comments", questionId] });
     }
   });
 
-  const comments = query.data ?? [];
+  const comments = query.data?.content ?? [];
   const canSubmit = content.trim().length >= 2;
 
   return (
@@ -94,6 +97,13 @@ export function QuestionDiscussion({ questionId, token }: QuestionDiscussionProp
           </View>
         ))}
       </View>
+      <PaginationControls
+        page={page}
+        totalPages={query.data?.totalPages}
+        totalElements={query.data?.totalElements}
+        disabled={query.isFetching}
+        onPageChange={setPage}
+      />
     </View>
   );
 }

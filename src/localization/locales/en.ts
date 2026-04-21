@@ -190,7 +190,10 @@ export const en = {
   "myLawProposals": "My proposed texts",
   "noMyLawProposal": "No proposed text",
   "positiveImpact": "Positive impact",
-  "negativeImpact": "Negative impact"
+  "negativeImpact": "Negative impact",
+  "previousPage": "Previous",
+  "nextPage": "Next",
+  "pageStatus": "Page {{current}}/{{total}} · {{count}} items"
 } as const;
 
 export default en;
