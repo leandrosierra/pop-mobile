@@ -33,7 +33,6 @@ export type LegacyUser = {
   nom?: string;
   prenom?: string;
   email?: string;
-  password?: string;
   role?: LegacyRole;
   interets?: LegacyInterest[];
   choixGeo?: LegacyGeoChoice[];

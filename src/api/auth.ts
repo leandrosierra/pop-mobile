@@ -3,19 +3,25 @@ import {
   popUserSchema,
   refreshTokenResponseSchema
 } from "@/domain/schemas";
-import { apiRequest, isLegacyApi, legacyApiRequest, legacyToken, legacyUserIdFromToken } from "./client";
+import { apiRequest, isLegacyApi, legacyApiRequest } from "./client";
 import { LegacyUser, mapLegacyUser } from "./legacy";
+
+type LegacyLoginResponse = {
+  token: string;
+  refreshToken: string;
+  user: LegacyUser;
+};
 
 export const authApi = {
   async signInWithEmail(email: string, password: string) {
     if (isLegacyApi) {
-      const user = await legacyApiRequest<LegacyUser>("/user/login", {
+      const response = await legacyApiRequest<LegacyLoginResponse>("/user/login", {
         method: "POST",
         body: JSON.stringify({ login: email, password })
       });
       return {
-        token: legacyToken(user.id),
-        refreshToken: legacyToken(user.id)
+        token: response.token,
+        refreshToken: response.refreshToken
       };
     }
 
@@ -38,7 +44,7 @@ export const authApi = {
   },
   async currentUser(token: string) {
     if (isLegacyApi) {
-      return mapLegacyUser(await legacyApiRequest<LegacyUser>(`/user/${legacyUserIdFromToken(token)}`));
+      return mapLegacyUser(await legacyApiRequest<LegacyUser>("/user/current", { token }));
     }
 
     return apiRequest("/pop/user/current", {
@@ -78,9 +84,7 @@ export const authApi = {
   },
   deleteAccount(token: string) {
     if (isLegacyApi) {
-      return legacyApiRequest<void>(`/user/delete/${legacyUserIdFromToken(token)}`, {
-        method: "DELETE"
-      });
+      return legacyApiRequest<void>("/user/current", { method: "DELETE", token });
     }
 
     return apiRequest<void>("/pop/user/current", {
