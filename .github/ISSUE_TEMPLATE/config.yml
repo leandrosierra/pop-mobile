@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Discussion ouverte
+    url: https://github.com/leandrosierra/pop-mobile/discussions
+    about: Pour les questions, idées de vision, débats sur la démocratie semi-directe — pas un bug, pas une feature précise.
+  - name: 🔐 Vulnérabilité de sécurité
+    url: https://github.com/leandrosierra/pop-mobile/security/policy
+    about: Ne pas signaler en issue publique. Suivre la procédure de SECURITY.md.
